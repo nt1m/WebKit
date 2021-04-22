@@ -36,32 +36,26 @@ class StyleColorScheme {
 public:
     StyleColorScheme() { }
 
-    StyleColorScheme(OptionSet<ColorScheme> colorScheme, bool allowsTransformations)
+    StyleColorScheme(OptionSet<ColorScheme> colorScheme)
         : m_colorScheme(colorScheme)
-        , m_allowsTransformations(allowsTransformations)
     { }
 
     bool operator==(const StyleColorScheme& other) const
     {
-        return m_colorScheme == other.m_colorScheme && m_allowsTransformations == other.m_allowsTransformations;
+        return m_colorScheme == other.m_colorScheme;
     }
 
     bool operator!=(const StyleColorScheme& other) const { return !(*this == other); }
 
-    bool isAuto() const { return m_colorScheme.isEmpty() && m_allowsTransformations; }
-    bool isOnly() const { return m_colorScheme.isEmpty() && !m_allowsTransformations; }
+    bool isNormal() const { return m_colorScheme.isEmpty(); }
 
     OptionSet<ColorScheme> colorScheme() const { return m_colorScheme; }
 
     void add(ColorScheme colorScheme) { m_colorScheme.add(colorScheme); }
     bool contains(ColorScheme colorScheme) const { return m_colorScheme.contains(colorScheme); }
 
-    void setAllowsTransformations(bool allow) { m_allowsTransformations = allow; }
-    bool allowsTransformations() const { return m_allowsTransformations; }
-
 private:
     OptionSet<ColorScheme> m_colorScheme;
-    bool m_allowsTransformations { true };
 };
 
 } // namespace WebCore

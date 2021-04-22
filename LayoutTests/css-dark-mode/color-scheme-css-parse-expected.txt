@@ -1,4 +1,5 @@
 
 PASS Test valid values
+FAIL Test valid values with <custom-ident> assert_equals: expected "only" but got "normal"
 PASS Test invalid values
 

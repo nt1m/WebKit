@@ -1,3 +1,31 @@
+2021-04-22  Tim Nguyen  <ntim@apple.com>
+
+        color-scheme CSS property: replace `auto` with `normal` & remove support for `only`
+        https://bugs.webkit.org/show_bug.cgi?id=224810
+
+        Reviewed by Darin Adler.
+
+        Gets closer to the latest spec. `auto` & `only` are now treated as <custom-ident>.
+        Tests & test expectations updated to reflect these changes.
+
+        * css/CSSComputedStyleDeclaration.cpp:
+        (WebCore::ComputedStyleExtractor::valueForPropertyInStyle):
+        * css/CSSValueKeywords.in:
+        * css/parser/CSSPropertyParser.cpp:
+        (WebCore::consumeColorScheme):
+        * rendering/style/StyleColorScheme.h:
+        (WebCore::StyleColorScheme::StyleColorScheme):
+        (WebCore::StyleColorScheme::operator== const):
+        (WebCore::StyleColorScheme::isNormal const):
+        (WebCore::StyleColorScheme::isAuto const): Deleted.
+        (WebCore::StyleColorScheme::isOnly const): Deleted.
+        (WebCore::StyleColorScheme::setAllowsTransformations): Deleted.
+        (WebCore::StyleColorScheme::allowsTransformations const): Deleted.
+        (): Deleted.
+        * style/StyleBuilderConverter.h:
+        (WebCore::Style::BuilderConverter::updateColorScheme):
+        (WebCore::Style::BuilderConverter::convertColorScheme):
+
 2021-05-18  Cameron McCormack  <heycam@apple.com>
 
         Record gradient and pattern filled canvas text in the correct coordinate system.

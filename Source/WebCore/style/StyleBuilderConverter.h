@@ -503,11 +503,8 @@ inline void BuilderConverter::updateColorScheme(const CSSPrimitiveValue& primiti
     ASSERT(primitiveValue.isValueID());
 
     switch (primitiveValue.valueID()) {
-    case CSSValueAuto:
+    case CSSValueNormal:
         colorScheme = StyleColorScheme();
-        break;
-    case CSSValueOnly:
-        colorScheme.setAllowsTransformations(false);
         break;
     case CSSValueLight:
         colorScheme.add(ColorScheme::Light);
@@ -530,10 +527,6 @@ inline StyleColorScheme BuilderConverter::convertColorScheme(BuilderState&, cons
             updateColorScheme(downcast<CSSPrimitiveValue>(currentValue.get()), colorScheme);
     } else if (is<CSSPrimitiveValue>(value))
         updateColorScheme(downcast<CSSPrimitiveValue>(value), colorScheme);
-
-    // If the value was just "only", that is synonymous for "only light".
-    if (colorScheme.isOnly())
-        colorScheme.add(ColorScheme::Light);
 
     return colorScheme;
 }
