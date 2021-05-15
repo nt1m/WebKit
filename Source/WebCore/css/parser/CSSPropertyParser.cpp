@@ -3931,13 +3931,14 @@ static RefPtr<CSSValue> consumeColorScheme(CSSParserTokenRange& range)
     if (range.peek().id() == CSSValueNormal)
         return consumeIdent(range);
 
-    Vector<CSSValueID, 2> identifiers;
-
+    RefPtr<CSSValueList> list = CSSValueList::createSpaceSeparated();
     while (!range.atEnd()) {
         if (range.peek().type() != IdentToken)
             return nullptr;
 
         CSSValueID id = range.peek().id();
+
+        Optional<Ref<CSSPrimitiveValue>> value;
 
         switch (id) {
         case CSSValueNormal:
@@ -3947,21 +3948,22 @@ static RefPtr<CSSValue> consumeColorScheme(CSSParserTokenRange& range)
 
         case CSSValueLight:
         case CSSValueDark:
-            if (!identifiers.appendIfNotContains(id))
-                return nullptr;
+        case CSSValueAuto: // Consider auto as a <custom-ident>, like Chrome does.
+            value = CSSValuePool::singleton().createIdentifierValue(id);
             break;
 
         default:
-            // Unknown identifiers are allowed and ignored.
+            // Add <custom-ident> to list to be able to re-serialize them
+            value = consumeCustomIdent(range);
             break;
         }
+
+        if (value && !list->hasValue(value))
+            list->append(value);
 
         range.consumeIncludingWhitespace();
     }
 
-    RefPtr<CSSValueList> list = CSSValueList::createSpaceSeparated();
-    for (auto id : identifiers)
-        list->append(CSSValuePool::singleton().createIdentifierValue(id));
     return list;
 }
 

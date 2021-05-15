@@ -54,8 +54,14 @@ public:
     void add(ColorScheme colorScheme) { m_colorScheme.add(colorScheme); }
     bool contains(ColorScheme colorScheme) const { return m_colorScheme.contains(colorScheme); }
 
+    String customCSSText() { return m_customCSSText; }
+    void setCustomCSSText(String value) { m_customCSSText = value; }
+
 private:
     OptionSet<ColorScheme> m_colorScheme;
+
+    // Keep original value for serialization
+    String m_customCSSText;
 };
 
 } // namespace WebCore

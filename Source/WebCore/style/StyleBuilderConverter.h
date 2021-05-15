@@ -87,7 +87,7 @@ public:
     static RefPtr<ScaleTransformOperation> convertScale(BuilderState&, const CSSValue&);
     static RefPtr<TranslateTransformOperation> convertTranslate(BuilderState&, const CSSValue&);
 #if ENABLE(DARK_MODE_CSS)
-    static StyleColorScheme convertColorScheme(BuilderState&, const CSSValue&);
+    static StyleColorScheme convertColorScheme(BuilderState&, CSSValue&);
 #endif
     static String convertString(BuilderState&, const CSSValue&);
     static String convertStringOrAuto(BuilderState&, const CSSValue&);
@@ -518,15 +518,18 @@ inline void BuilderConverter::updateColorScheme(const CSSPrimitiveValue& primiti
     }
 }
 
-inline StyleColorScheme BuilderConverter::convertColorScheme(BuilderState&, const CSSValue& value)
+inline StyleColorScheme BuilderConverter::convertColorScheme(BuilderState&, CSSValue& value)
 {
     StyleColorScheme colorScheme;
 
     if (is<CSSValueList>(value)) {
         for (auto& currentValue : downcast<CSSValueList>(value))
             updateColorScheme(downcast<CSSPrimitiveValue>(currentValue.get()), colorScheme);
-    } else if (is<CSSPrimitiveValue>(value))
+        colorScheme.setCustomCSSText(downcast<CSSValueList>(value).customCSSText());
+    } else if (is<CSSPrimitiveValue>(value)) {
         updateColorScheme(downcast<CSSPrimitiveValue>(value), colorScheme);
+        colorScheme.setCustomCSSText(downcast<CSSPrimitiveValue>(value).customCSSText());
+    }
 
     return colorScheme;
 }
