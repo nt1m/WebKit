@@ -227,6 +227,7 @@ private:
     NEVER_INLINE String formatIntegerValue(ASCIILiteral suffix) const;
     static constexpr bool isFontIndependentLength(CSSUnitType);
     static constexpr bool isFontRelativeLength(CSSUnitType);
+    static constexpr bool isContainerFontRelativeLength(CSSUnitType);
     static constexpr bool isRootFontRelativeLength(CSSUnitType);
     static constexpr bool isViewportPercentageLength(CSSUnitType);
 
@@ -253,6 +254,16 @@ constexpr bool CSSPrimitiveValue::isFontIndependentLength(CSSUnitType type)
         || type == CSSUnitType::CSS_PC;
 }
 
+constexpr bool CSSPrimitiveValue::isContainerFontRelativeLength(CSSUnitType type)
+{
+    return type == CSSUnitType::CSS_CQCAP
+        || type == CSSUnitType::CSS_CQCH
+        || type == CSSUnitType::CSS_CQEM
+        || type == CSSUnitType::CSS_CQEX
+        || type == CSSUnitType::CSS_CQIC
+        || type == CSSUnitType::CSS_CQLH;
+}
+
 constexpr bool CSSPrimitiveValue::isRootFontRelativeLength(CSSUnitType type)
 {
     return type == CSSUnitType::CSS_RCAP
@@ -272,6 +283,7 @@ constexpr bool CSSPrimitiveValue::isFontRelativeLength(CSSUnitType type)
         || type == CSSUnitType::CSS_CH
         || type == CSSUnitType::CSS_IC
         || type == CSSUnitType::CSS_QUIRKY_EM
+        || isContainerFontRelativeLength(type)
         || isRootFontRelativeLength(type);
 }
 

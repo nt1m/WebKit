@@ -110,6 +110,12 @@ CSSUnitCategory unitCategory(CSSUnitType type)
     case CSSUnitType::CSS_CQB:
     case CSSUnitType::CSS_CQMIN:
     case CSSUnitType::CSS_CQMAX:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_ATTR:
     case CSSUnitType::CSS_CALC:
     case CSSUnitType::CSS_CALC_PERCENTAGE_WITH_LENGTH:
@@ -251,6 +257,12 @@ TextStream& operator<<(TextStream& ts, CSSUnitType unitType)
     case CSSUnitType::CSS_CQB: ts << "cqb"; break;
     case CSSUnitType::CSS_CQMAX: ts << "cqmax"; break;
     case CSSUnitType::CSS_CQMIN: ts << "cqmin"; break;
+    case CSSUnitType::CSS_CQCAP: ts << "cqcap"; break;
+    case CSSUnitType::CSS_CQCH: ts << "cqch"; break;
+    case CSSUnitType::CSS_CQEM: ts << "cqem"; break;
+    case CSSUnitType::CSS_CQEX: ts << "cqex"; break;
+    case CSSUnitType::CSS_CQIC: ts << "cqic"; break;
+    case CSSUnitType::CSS_CQLH: ts << "cqlh"; break;
     case CSSUnitType::CSS_TURN: ts << "turn"; break;
     case CSSUnitType::CSS_RCAP: ts << "rcap"; break;
     case CSSUnitType::CSS_RCH: ts << "rch"; break;

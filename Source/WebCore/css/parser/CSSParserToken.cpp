@@ -232,6 +232,22 @@ CSSUnitType cssPrimitiveValueUnitFromTrie(const CharacterType* data, unsigned le
         break;
     case 4:
         switch (toASCIILower(data[0])) {
+        case 'c':
+            if (toASCIILower(data[1]) == 'q') {
+                if (toASCIILower(data[2]) == 'c' && toASCIILower(data[3]) == 'h')
+                    return CSSUnitType::CSS_CQCH;
+                if (toASCIILower(data[2]) == 'e') {
+                    if (toASCIILower(data[3]) == 'm')
+                        return CSSUnitType::CSS_CQEM;
+                    if (toASCIILower(data[3]) == 'x')
+                        return CSSUnitType::CSS_CQEX;
+                }
+                if (toASCIILower(data[2]) == 'i' && toASCIILower(data[3]) == 'c')
+                    return CSSUnitType::CSS_CQIC;
+                if (toASCIILower(data[2]) == 'l' && toASCIILower(data[3]) == 'h')
+                    return CSSUnitType::CSS_CQLH;
+            }
+            break;
         case 'd':
             switch (toASCIILower(data[1])) {
             case 'p':
@@ -285,16 +301,20 @@ CSSUnitType cssPrimitiveValueUnitFromTrie(const CharacterType* data, unsigned le
                 return CSSUnitType::CSS_QUIRKY_EM;
             break;
         case 'c':
-            if (toASCIILower(data[1]) == 'q' && toASCIILower(data[2]) == 'm') {
-                switch (toASCIILower(data[3])) {
-                case 'a':
-                    if (toASCIILower(data[4]) == 'x')
-                        return CSSUnitType::CSS_CQMAX;
-                    break;
-                case 'i':
-                    if (toASCIILower(data[4]) == 'n')
-                        return CSSUnitType::CSS_CQMIN;
-                    break;
+            if (toASCIILower(data[1]) == 'q') {
+                if (toASCIILower(data[2]) == 'c' && toASCIILower(data[3]) == 'a' && toASCIILower(data[4]) == 'p')
+                    return CSSUnitType::CSS_CQCAP;
+                if (toASCIILower(data[2]) == 'm') {
+                    switch (toASCIILower(data[3])) {
+                    case 'a':
+                        if (toASCIILower(data[4]) == 'x')
+                            return CSSUnitType::CSS_CQMAX;
+                        break;
+                    case 'i':
+                        if (toASCIILower(data[4]) == 'n')
+                            return CSSUnitType::CSS_CQMIN;
+                        break;
+                    }
                 }
             }
             break;

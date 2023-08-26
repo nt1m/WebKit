@@ -91,7 +91,6 @@ static inline bool isValidCSSUnitTypeForDoubleConversion(CSSUnitType unitType)
     case CSSUnitType::CSS_LVMAX:
     case CSSUnitType::CSS_LVMIN:
     case CSSUnitType::CSS_LVW:
-    case CSSUnitType::CSS_RLH:
     case CSSUnitType::CSS_QUIRKY_EM:
     case CSSUnitType::CSS_RAD:
     case CSSUnitType::CSS_RCAP:
@@ -99,6 +98,7 @@ static inline bool isValidCSSUnitTypeForDoubleConversion(CSSUnitType unitType)
     case CSSUnitType::CSS_REM:
     case CSSUnitType::CSS_REX:
     case CSSUnitType::CSS_RIC:
+    case CSSUnitType::CSS_RLH:
     case CSSUnitType::CSS_S:
     case CSSUnitType::CSS_SVB:
     case CSSUnitType::CSS_SVH:
@@ -117,6 +117,12 @@ static inline bool isValidCSSUnitTypeForDoubleConversion(CSSUnitType unitType)
     case CSSUnitType::CSS_DPI:
     case CSSUnitType::CSS_DPPX:
     case CSSUnitType::CSS_X:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:
@@ -226,6 +232,12 @@ static inline bool isStringType(CSSUnitType type)
     case CSSUnitType::CSS_VMAX:
     case CSSUnitType::CSS_VMIN:
     case CSSUnitType::CSS_VW:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:
@@ -445,6 +457,12 @@ CSSPrimitiveValue::~CSSPrimitiveValue()
     case CSSUnitType::CSS_UNKNOWN:
     case CSSUnitType::CSS_PROPERTY_ID:
     case CSSUnitType::CSS_VALUE_ID:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:
@@ -695,12 +713,14 @@ double CSSPrimitiveValue::computeUnzoomedNonCalcLengthDouble(CSSUnitType primiti
     switch (primitiveType) {
     case CSSUnitType::CSS_EM:
     case CSSUnitType::CSS_QUIRKY_EM:
+    case CSSUnitType::CSS_CQEM:
     case CSSUnitType::CSS_REM: {
         ASSERT(fontCascadeForUnit);
         auto& fontDescription = fontCascadeForUnit->fontDescription();
         return ((propertyToCompute == CSSPropertyFontSize) ? fontDescription.specifiedSize() : fontDescription.computedSize()) * value;
     }
     case CSSUnitType::CSS_EX:
+    case CSSUnitType::CSS_CQEX:
     case CSSUnitType::CSS_REX: {
         ASSERT(fontCascadeForUnit);
         auto& fontMetrics = fontCascadeForUnit->metricsOfPrimaryFont();
@@ -710,6 +730,7 @@ double CSSPrimitiveValue::computeUnzoomedNonCalcLengthDouble(CSSUnitType primiti
         return ((propertyToCompute == CSSPropertyFontSize) ? fontDescription.specifiedSize() : fontDescription.computedSize()) / 2.0 * value;
     }
     case CSSUnitType::CSS_CAP:
+    case CSSUnitType::CSS_CQCAP:
     case CSSUnitType::CSS_RCAP: {
         ASSERT(fontCascadeForUnit);
         auto& fontMetrics = fontCascadeForUnit->metricsOfPrimaryFont();
@@ -718,10 +739,12 @@ double CSSPrimitiveValue::computeUnzoomedNonCalcLengthDouble(CSSUnitType primiti
         return fontMetrics.ascent() * value;
     }
     case CSSUnitType::CSS_CH:
+    case CSSUnitType::CSS_CQCH:
     case CSSUnitType::CSS_RCH:
         ASSERT(fontCascadeForUnit);
         return fontCascadeForUnit->metricsOfPrimaryFont().zeroWidth().value_or(fontCascadeForUnit->fontDescription().computedSize() / 2) * value;
     case CSSUnitType::CSS_IC:
+    case CSSUnitType::CSS_CQIC:
     case CSSUnitType::CSS_RIC:
         ASSERT(fontCascadeForUnit);
         return fontCascadeForUnit->metricsOfPrimaryFont().ideogramWidth() * value;
@@ -734,6 +757,7 @@ double CSSPrimitiveValue::computeUnzoomedNonCalcLengthDouble(CSSUnitType primiti
     case CSSUnitType::CSS_Q:
         return cssPixelsPerInch / QPerInch * value;
     case CSSUnitType::CSS_LH:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_RLH:
         ASSERT_NOT_REACHED();
         return -1.0;
@@ -804,14 +828,10 @@ double CSSPrimitiveValue::computeUnzoomedNonCalcLengthDouble(CSSUnitType primiti
 
 double CSSPrimitiveValue::computeNonCalcLengthDouble(const CSSToLengthConversionData& conversionData, CSSUnitType primitiveType, double value)
 {
-    auto resolveContainerUnit = [&](CQ::Axis physicalAxis) -> std::optional<double> {
-        ASSERT(physicalAxis == CQ::Axis::Width || physicalAxis == CQ::Axis::Height);
-
-        conversionData.setUsesContainerUnits();
-
+    auto findEligibleSizeContainerRenderer = [&](CQ::Axis physicalAxis = CQ::Axis::Width) -> RenderBox* {
         auto* element = conversionData.elementForContainerUnitResolution();
         if (!element)
-            return { };
+            return nullptr;
 
         auto mode = conversionData.style()->styleType() == PseudoId::None
             ? Style::ContainerQueryEvaluator::SelectionMode::Element
@@ -820,14 +840,19 @@ double CSSPrimitiveValue::computeNonCalcLengthDouble(const CSSToLengthConversion
         // "The query container for each axis is the nearest ancestor container that accepts container size queries on that axis."
         while ((element = Style::ContainerQueryEvaluator::selectContainer(physicalAxis, nullString(), *element, mode))) {
             auto* containerRenderer = dynamicDowncast<RenderBox>(element->renderer());
-            if (containerRenderer && containerRenderer->hasEligibleContainmentForSizeQuery()) {
-                auto widthOrHeight = physicalAxis == CQ::Axis::Width ? containerRenderer->contentWidth() : containerRenderer->contentHeight();
-                return widthOrHeight * value / 100;
-            }
+            if (containerRenderer && containerRenderer->hasEligibleContainmentForSizeQuery())
+                return containerRenderer;
             // For pseudo-elements the element itself can be the container. Avoid looping forever.
             mode = Style::ContainerQueryEvaluator::SelectionMode::Element;
         }
         return { };
+    };
+    auto resolveContainerSizeUnit = [&](CQ::Axis physicalAxis) -> std::optional<double> {
+        ASSERT(physicalAxis == CQ::Axis::Width || physicalAxis == CQ::Axis::Height);
+        conversionData.setUsesContainerUnits();
+        auto containerRenderer = findEligibleSizeContainerRenderer(physicalAxis);
+        auto widthOrHeight = physicalAxis == CQ::Axis::Width ? containerRenderer->contentWidth() : containerRenderer->contentHeight();
+        return widthOrHeight * value / 100;
     };
 
     switch (primitiveType) {
@@ -850,6 +875,21 @@ double CSSPrimitiveValue::computeNonCalcLengthDouble(const CSSToLengthConversion
     case CSSUnitType::CSS_RIC:
         value = computeUnzoomedNonCalcLengthDouble(primitiveType, value, conversionData.propertyToCompute(), conversionData.rootStyle() ? &conversionData.rootStyle()->fontCascade() : &conversionData.fontCascadeForFontUnits());
         break;
+
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC: {
+        auto fontCascadeForContainer = [&] {
+            if (auto* containerRenderer = findEligibleSizeContainerRenderer())
+                return containerRenderer->style().fontCascade();
+            return conversionData.rootStyle() ? conversionData.rootStyle()->fontCascade() : conversionData.fontCascadeForFontUnits();
+        }();
+        conversionData.setUsesContainerUnits();
+        value = computeUnzoomedNonCalcLengthDouble(primitiveType, value, conversionData.propertyToCompute(), &fontCascadeForContainer);
+        break;
+    }
 
     case CSSUnitType::CSS_PX:
     case CSSUnitType::CSS_CM:
@@ -943,26 +983,46 @@ double CSSPrimitiveValue::computeNonCalcLengthDouble(const CSSToLengthConversion
             value *= conversionData.computedLineHeightForFontUnits();
         break;
 
+    case CSSUnitType::CSS_CQLH:
+    case CSSUnitType::CSS_RLH: {
+        auto* style = [&] {
+            if (primitiveType == CSSUnitType::CSS_RLH)
+                return conversionData.rootStyle();
+
+            conversionData.setUsesContainerUnits();
+            if (auto* containerRenderer = findEligibleSizeContainerRenderer())
+                return &containerRenderer->style();
+            return conversionData.rootStyle();
+        }();
+        if (style) {
+            if (conversionData.computingLineHeight() || conversionData.computingFontSize())
+                value *= style->computeLineHeight(style->specifiedLineHeight());
+            else
+                value *= style->computedLineHeight();
+        }
+        break;
+    }
+
     case CSSUnitType::CSS_CQW: {
-        if (auto resolvedValue = resolveContainerUnit(CQ::Axis::Width))
+        if (auto resolvedValue = resolveContainerSizeUnit(CQ::Axis::Width))
             return *resolvedValue;
         return computeNonCalcLengthDouble(conversionData, CSSUnitType::CSS_SVW, value);
     }
 
     case CSSUnitType::CSS_CQH: {
-        if (auto resolvedValue = resolveContainerUnit(CQ::Axis::Height))
+        if (auto resolvedValue = resolveContainerSizeUnit(CQ::Axis::Height))
             return *resolvedValue;
         return computeNonCalcLengthDouble(conversionData, CSSUnitType::CSS_SVH, value);
     }
 
     case CSSUnitType::CSS_CQI: {
-        if (auto resolvedValue = resolveContainerUnit(conversionData.style()->isHorizontalWritingMode() ? CQ::Axis::Width : CQ::Axis::Height))
+        if (auto resolvedValue = resolveContainerSizeUnit(conversionData.style()->isHorizontalWritingMode() ? CQ::Axis::Width : CQ::Axis::Height))
             return *resolvedValue;
         return computeNonCalcLengthDouble(conversionData, CSSUnitType::CSS_SVI, value);
     }
 
     case CSSUnitType::CSS_CQB: {
-        if (auto resolvedValue = resolveContainerUnit(conversionData.style()->isHorizontalWritingMode() ? CQ::Axis::Height : CQ::Axis::Width))
+        if (auto resolvedValue = resolveContainerSizeUnit(conversionData.style()->isHorizontalWritingMode() ? CQ::Axis::Height : CQ::Axis::Width))
             return *resolvedValue;
         return computeNonCalcLengthDouble(conversionData, CSSUnitType::CSS_SVB, value);
     }
@@ -972,15 +1032,6 @@ double CSSPrimitiveValue::computeNonCalcLengthDouble(const CSSToLengthConversion
 
     case CSSUnitType::CSS_CQMIN:
         return std::min(computeNonCalcLengthDouble(conversionData, CSSUnitType::CSS_CQB, value), computeNonCalcLengthDouble(conversionData, CSSUnitType::CSS_CQI, value));
-
-    case CSSUnitType::CSS_RLH:
-        if (conversionData.rootStyle()) {
-            if (conversionData.computingLineHeight() || conversionData.computingFontSize())
-                value *= conversionData.rootStyle()->computeLineHeight(conversionData.rootStyle()->specifiedLineHeight());
-            else
-                value *= conversionData.rootStyle()->computedLineHeight();
-        }
-        break;
 
     default:
         ASSERT_NOT_REACHED();
@@ -1234,6 +1285,12 @@ ASCIILiteral CSSPrimitiveValue::unitTypeString(CSSUnitType unitType)
     case CSSUnitType::CSS_CAP: return "cap"_s;
     case CSSUnitType::CSS_CH: return "ch"_s;
     case CSSUnitType::CSS_CM: return "cm"_s;
+    case CSSUnitType::CSS_CQCAP: return "cqcap"_s;
+    case CSSUnitType::CSS_CQCH: return "cqch"_s;
+    case CSSUnitType::CSS_CQEM: return "cqem"_s;
+    case CSSUnitType::CSS_CQEX: return "cqex"_s;
+    case CSSUnitType::CSS_CQIC: return "cqic"_s;
+    case CSSUnitType::CSS_CQLH: return "cqlh"_s;
     case CSSUnitType::CSS_CQB: return "cqb"_s;
     case CSSUnitType::CSS_CQH: return "cqh"_s;
     case CSSUnitType::CSS_CQI: return "cqi"_s;
@@ -1327,6 +1384,12 @@ ALWAYS_INLINE String CSSPrimitiveValue::serializeInternal() const
     case CSSUnitType::CSS_CAP:
     case CSSUnitType::CSS_CH:
     case CSSUnitType::CSS_CM:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_CQB:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:
@@ -1521,6 +1584,12 @@ bool CSSPrimitiveValue::equals(const CSSPrimitiveValue& other) const
     case CSSUnitType::CSS_LH:
     case CSSUnitType::CSS_RLH:
     case CSSUnitType::CSS_DIMENSION:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:
@@ -1623,6 +1692,12 @@ bool CSSPrimitiveValue::addDerivedHash(Hasher& hasher) const
     case CSSUnitType::CSS_LH:
     case CSSUnitType::CSS_RLH:
     case CSSUnitType::CSS_DIMENSION:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:
@@ -1696,6 +1771,13 @@ void CSSPrimitiveValue::collectComputedStyleDependencies(ComputedStyleDependenci
     case CSSUnitType::CSS_CQB:
     case CSSUnitType::CSS_CQMIN:
     case CSSUnitType::CSS_CQMAX:
+    // FIXME: font-relative units don't rely on container dimensions, but create different cycles.
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
         dependencies.containerDimensions = true;
         break;
     case CSSUnitType::CSS_CALC:

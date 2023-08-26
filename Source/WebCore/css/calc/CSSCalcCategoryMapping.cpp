@@ -80,6 +80,12 @@ CalculationCategory calcUnitCategory(CSSUnitType type)
     case CSSUnitType::CSS_DVMAX:
     case CSSUnitType::CSS_DVB:
     case CSSUnitType::CSS_DVI:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:
@@ -178,6 +184,12 @@ CalculationCategory calculationCategoryForCombination(CSSUnitType type)
     case CSSUnitType::CSS_DVMAX:
     case CSSUnitType::CSS_DVB:
     case CSSUnitType::CSS_DVI:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:
@@ -271,6 +283,12 @@ bool hasDoubleValue(CSSUnitType type)
     case CSSUnitType::CSS_REX:
     case CSSUnitType::CSS_RIC:
     case CSSUnitType::CSS_RLH:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_CQW:
     case CSSUnitType::CSS_CQH:
     case CSSUnitType::CSS_CQI:

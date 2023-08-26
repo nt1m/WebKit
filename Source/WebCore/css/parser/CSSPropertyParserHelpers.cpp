@@ -555,6 +555,12 @@ struct LengthRawKnownTokenTypeDimensionConsumer {
         case CSSUnitType::CSS_RIC:
         case CSSUnitType::CSS_EX:
         case CSSUnitType::CSS_REX:
+        case CSSUnitType::CSS_CQCAP:
+        case CSSUnitType::CSS_CQCH:
+        case CSSUnitType::CSS_CQEM:
+        case CSSUnitType::CSS_CQEX:
+        case CSSUnitType::CSS_CQIC:
+        case CSSUnitType::CSS_CQLH:
         case CSSUnitType::CSS_PX:
         case CSSUnitType::CSS_CM:
         case CSSUnitType::CSS_MM:
