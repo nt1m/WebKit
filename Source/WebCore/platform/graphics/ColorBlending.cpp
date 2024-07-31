@@ -28,32 +28,140 @@
 
 #include "AnimationUtilities.h"
 #include "Color.h"
+#include "ColorConversion.h"
 #include "ColorInterpolation.h"
 
 namespace WebCore {
 
-Color blendSourceOver(const Color& backdrop, const Color& source)
+
+// normal | multiply | screen | overlay | darken | lighten |
+// color-dodge | color-burn | hard-light | soft-light | difference | exclusion
+static float blendSeparableChannel(float backdrop, float source, BlendMode blendMode)
 {
-    if (!backdrop.isVisible() || source.isOpaque())
+    switch (blendMode) {
+    case BlendMode::Normal:
         return source;
+    case BlendMode::Multiply:
+        return backdrop * source;
+    case BlendMode::Screen:
+        return backdrop + source - (backdrop * source);
+    case BlendMode::Overlay:
+        return blendSeparableChannel(source, backdrop, BlendMode::HardLight);
+    case BlendMode::Darken:
+        return std::min(backdrop, source);
+    case BlendMode::Lighten:
+        return std::max(backdrop, source);
+    // FIXME: color-dodge and color-burn are swapped in the spec.
+    case BlendMode::ColorBurn:
+        if (backdrop == 0)
+            return 0;
+        if (source == 1)
+            return 1;
+        return std::min(1.f, backdrop / (1 - source));
+    case BlendMode::ColorDodge:
+        if (backdrop == 1)
+            return 1;
+        if (source == 0)
+            return 0;
+        return 1 - std::min(1.f, (1 - backdrop) / source);
+    case BlendMode::HardLight:
+        if (source < 0.5)
+            return blendSeparableChannel(backdrop, 2 * source, BlendMode::Multiply);
+        return blendSeparableChannel(backdrop, 2 * source - 1, BlendMode::Screen);
+    case BlendMode::SoftLight: {
+        auto d = [&]() -> uint8_t {
+            if (backdrop <= 0.25)
+                return ((16 * backdrop - 12) * backdrop + 4) * backdrop;
+            return std::sqrt(backdrop);
+        }();
+        if (source <= 0.5)
+            return backdrop - (1 - 2 * source) * backdrop * (1 - backdrop);
+        return backdrop + (2 * source - 1) * (d - backdrop);
+    }
+    case BlendMode::Difference:
+        return std::abs(backdrop - source);
+    case BlendMode::Exclusion:
+        return backdrop + source - 2 * backdrop * source;       
+    default:
+        ASSERT_NOT_REACHED();
+        return source;
+    }
+}
+
+// hue | saturation | color | luminosity
+static Color blendWithNonSeparableBlendMode(const Color& backdrop, const Color& source, BlendMode blendMode)
+{
+    auto backdropHSLA = backdrop.toColorTypeLossy<HSLA<float>>().resolved();
+    auto sourceHSLA = source.toColorTypeLossy<HSLA<float>>().resolved();
+
+    switch (blendMode) {
+    case BlendMode::Hue: {
+        auto blendedHSLA = source.toColorTypeLossy<HSLA<float>>().resolved();
+        blendedHSLA.saturation = backdropHSLA.saturation;
+        blendedHSLA.lightness = backdropHSLA.lightness;
+        blendedHSLA.alpha = sourceHSLA.alpha;
+        return blendedHSLA;
+    }
+    case BlendMode::Saturation: {
+        auto blendedHSLA = backdrop.toColorTypeLossy<HSLA<float>>().resolved();
+        blendedHSLA.saturation = sourceHSLA.saturation;
+        blendedHSLA.lightness = backdropHSLA.lightness;
+        blendedHSLA.alpha = sourceHSLA.alpha;
+        return blendedHSLA;
+    }
+    case BlendMode::Color: {
+        auto blendedHSLA = source.toColorTypeLossy<HSLA<float>>().resolved();
+        blendedHSLA.lightness = backdropHSLA.lightness;
+        blendedHSLA.alpha = sourceHSLA.alpha;
+        return blendedHSLA;
+    }
+    case BlendMode::Luminosity: {
+        auto blendedHSLA = backdrop.toColorTypeLossy<HSLA<float>>().resolved();
+        blendedHSLA.lightness = sourceHSLA.lightness;
+        blendedHSLA.alpha = sourceHSLA.alpha;
+        return blendedHSLA;
+    }
+    default:
+        ASSERT_NOT_REACHED();
+        return sourceHSLA;
+    }
+}
+
+Color blendSourceOver(const Color& backdrop, const Color& source, BlendMode blendMode)
+{
+    auto [backdropR, backdropG, backdropB, backdropA] = backdrop.toColorTypeLossy<SRGBA<uint8_t>>().resolved();
+    auto [sourceR, sourceG, sourceB, sourceA] = source.toColorTypeLossy<SRGBA<uint8_t>>().resolved();
+
+    auto blended = [&]() -> Color {
+        if (blendMode == BlendMode::Hue || blendMode == BlendMode::Saturation || blendMode == BlendMode::Color || blendMode == BlendMode::Luminosity)
+            return blendWithNonSeparableBlendMode(backdrop, source, blendMode);
+
+        uint8_t blendedR = blendSeparableChannel(backdropR / 0xFF, sourceR / 0xFF, blendMode) * 0xFF;
+        uint8_t blendedG = blendSeparableChannel(backdropG / 0xFF, sourceG / 0xFF, blendMode) * 0xFF;
+        uint8_t blendedB = blendSeparableChannel(backdropB / 0xFF, sourceB / 0xFF, blendMode) * 0xFF;
+
+        return makeFromComponentsClamping<SRGBA<uint8_t>>(blendedR, blendedG, blendedB, sourceA);
+    }();
+
+    auto [blendedR, blendedG, blendedB, blendedA] = blended.toColorTypeLossy<SRGBA<uint8_t>>().resolved();
+
+    if (!backdrop.isVisible() || source.isOpaque())
+        return blended;
 
     if (!source.isVisible())
         return backdrop;
 
-    auto [backdropR, backdropG, backdropB, backdropA] = backdrop.toColorTypeLossy<SRGBA<uint8_t>>().resolved();
-    auto [sourceR, sourceG, sourceB, sourceA] = source.toColorTypeLossy<SRGBA<uint8_t>>().resolved();
-
     if (!backdropA || sourceA == 255)
-        return source;
+        return blended;
 
     if (!sourceA)
         return backdrop;
 
     int d = 0xFF * (backdropA + sourceA) - backdropA * sourceA;
     int a = d / 0xFF;
-    int r = (backdropR * backdropA * (0xFF - sourceA) + 0xFF * sourceA * sourceR) / d;
-    int g = (backdropG * backdropA * (0xFF - sourceA) + 0xFF * sourceA * sourceG) / d;
-    int b = (backdropB * backdropA * (0xFF - sourceA) + 0xFF * sourceA * sourceB) / d;
+    int r = (backdropR * backdropA * (0xFF - sourceA) + 0xFF * sourceA * blendedR) / d;
+    int g = (backdropG * backdropA * (0xFF - sourceA) + 0xFF * sourceA * blendedG) / d;
+    int b = (backdropB * backdropA * (0xFF - sourceA) + 0xFF * sourceA * blendedB) / d;
 
     return makeFromComponentsClamping<SRGBA<uint8_t>>(r, g, b, a);
 }

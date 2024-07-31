@@ -33,6 +33,7 @@
 #include "CSSParserFastPaths.h"
 #include "CSSParserIdioms.h"
 #include "CSSParserTokenRange.h"
+#include "CSSPrimitiveValueMappings.h"
 #include "CSSPropertyParserConsumer+AngleDefinitions.h"
 #include "CSSPropertyParserConsumer+ColorInterpolationMethod.h"
 #include "CSSPropertyParserConsumer+Ident.h"
@@ -43,10 +44,12 @@
 #include "CSSPropertyParserConsumer+PercentDefinitions.h"
 #include "CSSPropertyParserConsumer+Primitives.h"
 #include "CSSPropertyParserConsumer+SymbolDefinitions.h"
+#include "CSSPropertyParsing.h"
 #include "CSSTokenizer.h"
 #include "CSSUnresolvedAbsoluteColor.h"
 #include "CSSUnresolvedColor.h"
 #include "CSSUnresolvedColorMix.h"
+#include "CSSUnresolvedColorLayers.h"
 #include "CSSUnresolvedColorResolutionContext.h"
 #include "CSSUnresolvedLightDark.h"
 #include "CSSUnresolvedRelativeColor.h"
@@ -80,6 +83,7 @@ struct ColorParserState {
         : allowedColorTypes { options.allowedColorTypes }
         , acceptQuirkyColors { options.acceptQuirkyColors }
         , colorContrastEnabled { context.colorContrastEnabled }
+        , colorLayersEnabled { context.colorLayersEnabled }
         , lightDarkEnabled { context.lightDarkEnabled }
         , mode { context.mode }
     {
@@ -89,6 +93,7 @@ struct ColorParserState {
 
     bool acceptQuirkyColors;
     bool colorContrastEnabled;
+    bool colorLayersEnabled;
     bool lightDarkEnabled;
 
     CSSParserMode mode;
@@ -662,6 +667,45 @@ static std::optional<CSSUnresolvedColor> consumeColorMixFunction(CSSParserTokenR
     };
 }
 
+// MARK: - color-layers()
+
+static std::optional<CSSUnresolvedColor> consumeColorLayersFunction(CSSParserTokenRange& range, ColorParserState& state)
+{
+    // color-layers() = color-layers([ <blend-mode>, ]? <color># )
+
+    ASSERT(range.peek().functionId() == CSSValueColorLayers);
+
+    if (!state.colorLayersEnabled)
+        return std::nullopt;
+
+    auto args = consumeFunction(range);
+
+    auto blendMode = BlendMode::Normal;
+    if (auto ident = CSSPropertyParsing::consumeBlendMode(args)) {
+        blendMode = fromCSSValueDeducingType(*ident);
+        consumeCommaIncludingWhitespace(args);
+    }
+
+    Vector<UniqueRef<CSSUnresolvedColor>> colors;
+    do {
+        auto color = consumeColor(args, state);
+        if (!color)
+            return std::nullopt;
+
+        colors.append(makeUniqueRef<CSSUnresolvedColor>(WTFMove(*color)));
+    } while (consumeCommaIncludingWhitespace(args));
+
+    if (!args.atEnd())
+        return std::nullopt;
+
+    return CSSUnresolvedColor {
+        CSSUnresolvedColorLayers {
+            .blendMode = blendMode,
+            .colors = WTFMove(colors)
+        }
+    };
+}
+
 // MARK: - light-dark()
 
 static std::optional<CSSUnresolvedColor> consumeLightDarkFunction(CSSParserTokenRange& range, ColorParserState& state)
@@ -738,6 +782,9 @@ static std::optional<CSSUnresolvedColor> consumeAColorFunction(CSSParserTokenRan
         break;
     case CSSValueColorMix:
         color = consumeColorMixFunction(colorRange, state);
+        break;
+    case CSSValueColorLayers:
+        color = consumeColorLayersFunction(colorRange, state);
         break;
     case CSSValueLightDark:
         color = consumeLightDarkFunction(colorRange, state);

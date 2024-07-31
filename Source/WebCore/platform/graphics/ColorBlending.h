@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "GraphicsTypes.h"
+
 namespace WebCore {
 
 struct BlendingContext;
@@ -33,7 +35,7 @@ class Color;
 // NOTE: These functions do a lossy conversion to 8-bit sRGBA before blending.
 
 // This is an implementation of Porter-Duff's "source-over" equation.
-WEBCORE_EXPORT Color blendSourceOver(const Color& backdrop, const Color& source);
+WEBCORE_EXPORT Color blendSourceOver(const Color& backdrop, const Color& source, BlendMode blendMode = BlendMode::Normal);
 
 // Bespoke "whitening" algorithm used by RenderTheme::transformSelectionBackgroundColor.
 // Note: This is a no-op if the color to blend with isn't opaque, which is likely not what you were expecting.

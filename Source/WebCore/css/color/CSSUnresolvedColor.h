@@ -30,6 +30,7 @@
 #include "CSSUnresolvedColorHex.h"
 #include "CSSUnresolvedColorKeyword.h"
 #include "CSSUnresolvedColorMix.h"
+#include "CSSUnresolvedColorLayers.h"
 #include "CSSUnresolvedLightDark.h"
 #include "CSSUnresolvedRelativeColor.h"
 #include <variant>
@@ -79,6 +80,7 @@ private:
         CSSUnresolvedColorKeyword,
         CSSUnresolvedColorHex,
         CSSUnresolvedColorMix,
+        CSSUnresolvedColorLayers,
         CSSUnresolvedLightDark,
         CSSUnresolvedRelativeColor<RGBFunctionModernRelative>,
         CSSUnresolvedRelativeColor<HSLFunctionModern>,

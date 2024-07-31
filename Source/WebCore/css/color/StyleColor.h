@@ -50,10 +50,11 @@ enum class StyleColorOptions : uint8_t {
     UseElevatedUserInterfaceLevel = 1 << 3
 };
 
-// StyleColorMix and StyleRelativeColor are forward declared and stored in
+// StyleColorMix, StyleColorLayers and StyleRelativeColor are forward declared and stored in
 // UniqueRefs to avoid unnecessarily growing the size of StyleColor for the
 // uncommon case of un-resolvability due to currentColor.
 struct StyleColorMix;
+struct StyleColorLayers;
 template<typename Descriptor>
 struct StyleRelativeColor;
 
@@ -70,6 +71,7 @@ public:
     StyleColor(StyleAbsoluteColor&&);
     StyleColor(StyleCurrentColor&&);
     StyleColor(StyleColorMix&&);
+    StyleColor(StyleColorLayers&&);
     StyleColor(StyleRelativeColor<RGBFunctionModernRelative>&&);
     StyleColor(StyleRelativeColor<HSLFunctionModern>&&);
     StyleColor(StyleRelativeColor<HWBFunction>&&);
@@ -138,6 +140,7 @@ private:
         StyleAbsoluteColor,
         StyleCurrentColor,
         UniqueRef<StyleColorMix>,
+        UniqueRef<StyleColorLayers>,
         UniqueRef<StyleRelativeColor<RGBFunctionModernRelative>>,
         UniqueRef<StyleRelativeColor<HSLFunctionModern>>,
         UniqueRef<StyleRelativeColor<HWBFunction>>,
