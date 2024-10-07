@@ -23,22 +23,26 @@
 #include "HTMLDetailsElement.h"
 
 #include "AXObjectCache.h"
+#include "CSSStyleSheet.h"
 #include "DocumentInlines.h"
 #include "ElementChildIteratorInlines.h"
 #include "ElementRareData.h"
 #include "EventLoop.h"
 #include "EventNames.h"
 #include "HTMLSlotElement.h"
+#include "HTMLStyleElement.h"
 #include "HTMLSummaryElement.h"
 #include "LocalizedStrings.h"
 #include "MouseEvent.h"
-#include "RenderBlockFlow.h"
 #include "ShadowRoot.h"
 #include "ShouldNotFireMutationEventsScope.h"
 #include "SlotAssignment.h"
+#include "StyleSheetContents.h"
 #include "Text.h"
 #include "ToggleEvent.h"
 #include "TypedElementDescendantIteratorInlines.h"
+#include "UserAgentStyle.h"
+#include "UserAgentStyleSheets.h"
 #include <wtf/NeverDestroyed.h>
 #include <wtf/TZoneMallocInlines.h>
 
@@ -97,11 +101,6 @@ HTMLDetailsElement::HTMLDetailsElement(const QualifiedName& tagName, Document& d
 
 HTMLDetailsElement::~HTMLDetailsElement() = default;
 
-RenderPtr<RenderElement> HTMLDetailsElement::createElementRenderer(RenderStyle&& style, const RenderTreePosition&)
-{
-    return createRenderer<RenderBlockFlow>(RenderObject::Type::BlockFlow, *this, WTFMove(style));
-}
-
 void HTMLDetailsElement::didAddUserAgentShadowRoot(ShadowRoot& root)
 {
     auto summarySlot = HTMLSlotElement::create(slotTag, document());
@@ -117,6 +116,14 @@ void HTMLDetailsElement::didAddUserAgentShadowRoot(ShadowRoot& root)
 
     m_defaultSlot = HTMLSlotElement::create(slotTag, document());
     ASSERT(!hasAttribute(openAttr));
+    m_defaultSlot->setInlineStyleProperty(CSSPropertyContentVisibility, CSSValueHidden);
+    m_defaultSlot->setInlineStyleProperty(CSSPropertyDisplay, CSSValueBlock);
+    root.appendChild(*m_defaultSlot);
+
+    static MainThreadNeverDestroyed<const String> stylesheet(StringImpl::createWithoutCopying(detailsElementShadowUserAgentStyleSheet));
+    auto style = HTMLStyleElement::create(HTMLNames::styleTag, document(), false);
+    style->setTextContent(String { stylesheet });
+    root.appendChild(WTFMove(style));
 }
 
 bool HTMLDetailsElement::isActiveSummary(const HTMLSummaryElement& summary) const
@@ -158,7 +165,8 @@ void HTMLDetailsElement::attributeChanged(const QualifiedName& name, const AtomS
             RefPtr root = shadowRoot();
             ASSERT(root);
             if (!newValue.isNull()) {
-                root->appendChild(*m_defaultSlot);
+                m_defaultSlot->removeInlineStyleProperty(CSSPropertyContentVisibility);
+                m_defaultSlot->removeInlineStyleProperty(CSSPropertyDisplay);
                 queueDetailsToggleEventTask(DetailsState::Closed, DetailsState::Open);
                 if (document().settings().detailsNameAttributeEnabled() && !attributeWithoutSynchronization(nameAttr).isEmpty()) {
                     ShouldNotFireMutationEventsScope scope(document());
@@ -166,7 +174,8 @@ void HTMLDetailsElement::attributeChanged(const QualifiedName& name, const AtomS
                         otherDetailsElement->removeAttribute(openAttr);
                 }
             } else {
-                root->removeChild(*m_defaultSlot);
+                m_defaultSlot->setInlineStyleProperty(CSSPropertyContentVisibility, CSSValueHidden);
+                m_defaultSlot->setInlineStyleProperty(CSSPropertyDisplay, CSSValueBlock);
                 queueDetailsToggleEventTask(DetailsState::Open, DetailsState::Closed);
             }
         }

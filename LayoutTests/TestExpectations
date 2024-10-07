@@ -919,10 +919,6 @@ imported/w3c/web-platform-tests/html/rendering/replaced-elements/attributes-for-
 webkit.org/b/252594 imported/w3c/web-platform-tests/html/rendering/replaced-elements/attributes-for-embedded-content-and-images/video-inline-size-containment-no-crash.html [ Skip ]
 imported/w3c/web-platform-tests/html/rendering/replaced-elements/embedded-content/cross-domain-iframe.sub.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/replaced-elements/embedded-content/tall-cross-domain-iframe-in-scrolled.sub.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/html/rendering/the-details-element/details-page-break-after-1-print.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/html/rendering/the-details-element/details-page-break-after-2-print.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/html/rendering/the-details-element/details-page-break-before-1-print.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/html/rendering/the-details-element/details-page-break-before-2-print.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/widgets/the-select-element/option-empty-label-to-empty-string.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/rendering/widgets/the-select-element/option-empty-label.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/iframe-modify-scrolling-attr-to-yes.html [ ImageOnlyFailure ]
@@ -950,6 +946,8 @@ imported/w3c/web-platform-tests/html/rendering/widgets/appearance/appearance-ani
 imported/w3c/web-platform-tests/html/rendering/widgets/appearance/appearance-transition-003.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-grid/grid-model/grid-layout-stale-002.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-element/modal-dialog-selection.html [ Pass Failure ]
+# The following test no longer exists upstream:
+imported/w3c/web-platform-tests/html/rendering/the-details-element/details-display-property-is-ignored.html [ ImageOnlyFailure ]
 
 # Cross-Origin-Embedder-Policy: credentialless is not supported.
 imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/credentialless

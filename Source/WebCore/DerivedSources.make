@@ -2108,6 +2108,7 @@ USER_AGENT_STYLE_SHEETS = \
     $(WebCore)/css/viewTransitions.css \
     $(WebCore)/html/shadow/mac/imageControlsMac.css \
     $(WebCore)/html/shadow/attachmentElementShadow.css \
+    $(WebCore)/html/shadow/detailsElementShadow.css \
     $(WebCore)/html/shadow/imageOverlay.css \
     $(WebCore)/html/shadow/meterElementShadow.css \
     ModernMediaControls.css \
