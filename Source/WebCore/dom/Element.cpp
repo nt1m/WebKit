@@ -492,7 +492,7 @@ Element::DispatchMouseEventResult Element::dispatchMouseEvent(const PlatformMous
     if (isDisabledFormControl() && !document().settings().sendMouseEventsToDisabledFormControlsEnabled())
         return { Element::EventIsDispatched::No, eventIsDefaultPrevented };
 
-    if (isForceEvent(platformEvent) && !document().hasListenerTypeForEventType(platformEvent.type()))
+    if (isForceEvent(platformEvent) && !document().hasListenerTypeForEventType(platformEvent.type()) && document().autoPopoverList().isEmpty())
         return { Element::EventIsDispatched::No, eventIsDefaultPrevented };
 
     Vector<Ref<MouseEvent>> childMouseEvents;
