@@ -239,6 +239,8 @@ public:
     bool hideIGNVolumeSlider() const;
 #endif
 
+    bool shouldDisableOverscrollOnNonRootScrollers() const;
+
 private:
     bool needsQuirks() const;
     bool isDomain(const String&) const;

@@ -2216,6 +2216,12 @@ bool Quirks::hideIGNVolumeSlider() const
 }
 #endif // PLATFORM(IOS)
 
+// messenger.com rdar://138855828
+bool Quirks::shouldDisableOverscrollOnNonRootScrollers() const
+{
+    return needsQuirks() && isDomain("messenger.com"_s);
+}
+
 URL Quirks::topDocumentURL() const
 {
     if (UNLIKELY(!m_topDocumentURLForTesting.isEmpty()))

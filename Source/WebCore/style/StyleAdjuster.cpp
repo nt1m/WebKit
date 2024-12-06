@@ -1011,6 +1011,11 @@ void Adjuster::adjustForSiteSpecificQuirks(RenderStyle& style) const
     }
 #endif
 #endif
+
+    if (m_element != m_document->documentElement() && m_document->quirks().shouldDisableOverscrollOnNonRootScrollers()) {
+        style.setOverscrollBehaviorX(OverscrollBehavior::None);
+        style.setOverscrollBehaviorY(OverscrollBehavior::None);
+    }
 }
 
 void Adjuster::propagateToDocumentElementAndInitialContainingBlock(Update& update, const Document& document)
