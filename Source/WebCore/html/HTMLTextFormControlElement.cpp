@@ -334,7 +334,7 @@ bool HTMLTextFormControlElement::setSelectionRange(unsigned start, unsigned end,
 #if PLATFORM(COCOA)
         bool cacheSelectionIfNotFocusedOrSelected = WTF::linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::SetSelectionRangeCachesSelectionIfNotFocusedOrSelected);
 #else
-        bool cacheSelectionIfNotFocusedOrSelected = true;
+        bool cacheSelectionIfNotFocusedOrSelected = !document().quirks().shouldNotCacheSelectionWhenInputIsNotFocusedOrSelected();
 #endif
         // Cache selection if neither selection or focus is on the input.
         if (cacheSelectionIfNotFocusedOrSelected && frame && enclosingTextFormControl(frame->selection().selection().start()) != this)

@@ -1781,6 +1781,12 @@ bool Quirks::needsFacebookStoriesCreationFormQuirk(const Element& element, const
 #endif
 }
 
+// hire.apple.com rdar://141628543
+bool Quirks::shouldNotCacheSelectionWhenInputIsNotFocusedOrSelected() const
+{
+    return needsQuirks() && m_quirksData.shouldNotCacheSelectionWhenInputIsNotFocusedOrSelected;
+}
+
 URL Quirks::topDocumentURL() const
 {
     if (UNLIKELY(!m_topDocumentURLForTesting.isEmpty()))
@@ -2155,6 +2161,8 @@ static void handleAppleQuirks(QuirksData& quirksData, const URL& quirksURL, cons
     UNUSED_PARAM(documentURL);
     // FIXME: Remove this when rdar://137625935 is resolved.
     quirksData.shouldAllowDownloadsInSpiteOfCSPQuirk = true;
+    // FIXME: Remove this when rdar://27792460 is resolved.
+    quirksData.shouldNotCacheSelectionWhenInputIsNotFocusedOrSelected = true;
 }
 
 static void handleBBCQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)

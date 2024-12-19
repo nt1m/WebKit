@@ -237,6 +237,8 @@ public:
 
     bool needsFacebookStoriesCreationFormQuirk(const Element&, const RenderStyle&) const;
 
+    bool shouldNotCacheSelectionWhenInputIsNotFocusedOrSelected() const;
+
 private:
     bool needsQuirks() const;
     bool isDomain(const String&) const;

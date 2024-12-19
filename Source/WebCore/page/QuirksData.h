@@ -80,6 +80,7 @@ struct WEBCORE_EXPORT QuirksData {
     bool shouldLayOutAtMinimumWindowWidthWhenIgnoringScalingConstraintsQuirk { false };
     bool shouldPreventOrientationMediaQueryFromEvaluatingToLandscapeQuirk { false };
     bool shouldUseLegacySelectPopoverDismissalBehaviorInDataActivationQuirk { false };
+    bool shouldNotCacheSelectionWhenInputIsNotFocusedOrSelected { false };
 
     // Requires check at moment of use
     std::optional<bool> needsDisableDOMPasteAccessQuirk;
