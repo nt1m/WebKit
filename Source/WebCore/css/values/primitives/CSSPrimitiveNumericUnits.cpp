@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -63,6 +64,12 @@ ASCIILiteral unitString(LengthUnit lengthUnit)
     case Cap:       return "cap"_s;
     case Ch:        return "ch"_s;
     case Ic:        return "ic"_s;
+    case Cqcap:     return "cqcap"_s;
+    case Cqch:      return "cqch"_s;
+    case Cqem:      return "cqem"_s;
+    case Cqex:      return "cqex"_s;
+    case Cqic:      return "cqic"_s;
+    case Cqlh:      return "cqlh"_s;
     case Rcap:      return "rcap"_s;
     case Rch:       return "rch"_s;
     case Rem:       return "rem"_s;
@@ -164,6 +171,12 @@ static_assert(enumToUnderlyingType(LengthUnit::Lh) == enumToUnderlyingType(Lengt
 static_assert(enumToUnderlyingType(LengthUnit::Cap) == enumToUnderlyingType(LengthPercentageUnit::Cap));
 static_assert(enumToUnderlyingType(LengthUnit::Ch) == enumToUnderlyingType(LengthPercentageUnit::Ch));
 static_assert(enumToUnderlyingType(LengthUnit::Ic) == enumToUnderlyingType(LengthPercentageUnit::Ic));
+static_assert(enumToUnderlyingType(LengthUnit::Cqcap) == enumToUnderlyingType(LengthPercentageUnit::Cqcap));
+static_assert(enumToUnderlyingType(LengthUnit::Cqch) == enumToUnderlyingType(LengthPercentageUnit::Cqch));
+static_assert(enumToUnderlyingType(LengthUnit::Cqem) == enumToUnderlyingType(LengthPercentageUnit::Cqem));
+static_assert(enumToUnderlyingType(LengthUnit::Cqex) == enumToUnderlyingType(LengthPercentageUnit::Cqex));
+static_assert(enumToUnderlyingType(LengthUnit::Cqic) == enumToUnderlyingType(LengthPercentageUnit::Cqic));
+static_assert(enumToUnderlyingType(LengthUnit::Cqlh) == enumToUnderlyingType(LengthPercentageUnit::Cqlh));
 static_assert(enumToUnderlyingType(LengthUnit::Rcap) == enumToUnderlyingType(LengthPercentageUnit::Rcap));
 static_assert(enumToUnderlyingType(LengthUnit::Rch) == enumToUnderlyingType(LengthPercentageUnit::Rch));
 static_assert(enumToUnderlyingType(LengthUnit::Rem) == enumToUnderlyingType(LengthPercentageUnit::Rem));

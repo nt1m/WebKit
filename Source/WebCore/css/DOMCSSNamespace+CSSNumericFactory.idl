@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2021 Apple Inc. All rights reserved.
+* Copyright (C) 2021, 2025 Apple Inc. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions
@@ -38,6 +38,12 @@
     CSSUnitValue ex(double value);
     CSSUnitValue ic(double value);
     CSSUnitValue lh(double value);
+    [EnabledBySetting=CSSContainerFontRelativeUnitsEnabled] CSSUnitValue cqcap(double value);
+    [EnabledBySetting=CSSContainerFontRelativeUnitsEnabled] CSSUnitValue cqch(double value);
+    [EnabledBySetting=CSSContainerFontRelativeUnitsEnabled] CSSUnitValue cqem(double value);
+    [EnabledBySetting=CSSContainerFontRelativeUnitsEnabled] CSSUnitValue cqex(double value);
+    [EnabledBySetting=CSSContainerFontRelativeUnitsEnabled] CSSUnitValue cqic(double value);
+    [EnabledBySetting=CSSContainerFontRelativeUnitsEnabled] CSSUnitValue cqlh(double value);
     CSSUnitValue rcap(double value);
     CSSUnitValue rch(double value);
     CSSUnitValue rem(double value);

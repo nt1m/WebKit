@@ -954,6 +954,7 @@ bool Scope::updateQueryContainerState(QueryContainerUpdateContext& context)
                 return size.width() != oldSize.width();
             case ContainerType::Size:
                 return size != oldSize;
+            case ContainerType::Font:
             case ContainerType::Normal:
                 RELEASE_ASSERT_NOT_REACHED();
             }

@@ -1133,6 +1133,20 @@ CSSColorLayersEnabled:
     WebCore:
       default: false
 
+CSSContainerFontRelativeUnitsEnabled:
+  type: bool
+  status: testable
+  category: css
+  humanReadableName: "CSS container-font relative units"
+  humanReadableDescription: "Enable support for container-font relative units"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 CSSContainerProgressFunctionEnabled:
   type: bool
   category: css

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2021-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -219,6 +219,18 @@ ExceptionOr<Ref<CSSStyleValue>> CSSStyleValueFactory::reifyValue(const CSSValue&
             return Ref<CSSStyleValue> { CSSNumericFactory::lh(primitiveValue->valueNoConversionDataRequired<double>()) };
         case CSSUnitType::CSS_RLH:
             return Ref<CSSStyleValue> { CSSNumericFactory::rlh(primitiveValue->valueNoConversionDataRequired<double>()) };
+        case CSSUnitType::CSS_CQEM:
+            return Ref<CSSStyleValue> { CSSNumericFactory::cqem(primitiveValue->valueNoConversionDataRequired<double>()) };
+        case CSSUnitType::CSS_CQEX:
+            return Ref<CSSStyleValue> { CSSNumericFactory::cqex(primitiveValue->valueNoConversionDataRequired<double>()) };
+        case CSSUnitType::CSS_CQCAP:
+            return Ref<CSSStyleValue> { CSSNumericFactory::cqcap(primitiveValue->valueNoConversionDataRequired<double>()) };
+        case CSSUnitType::CSS_CQCH:
+            return Ref<CSSStyleValue> { CSSNumericFactory::cqch(primitiveValue->valueNoConversionDataRequired<double>()) };
+        case CSSUnitType::CSS_CQIC:
+            return Ref<CSSStyleValue> { CSSNumericFactory::cqic(primitiveValue->valueNoConversionDataRequired<double>()) };
+        case CSSUnitType::CSS_CQLH:
+            return Ref<CSSStyleValue> { CSSNumericFactory::cqlh(primitiveValue->valueNoConversionDataRequired<double>()) };
         case CSSUnitType::CSS_VW:
             return Ref<CSSStyleValue> { CSSNumericFactory::vw(primitiveValue->valueNoConversionDataRequired<double>()) };
         case CSSUnitType::CSS_VH:

@@ -48,7 +48,9 @@ public:
 
     bool evaluate(const CQ::ContainerQuery&) const;
 
-    static const Element* selectContainer(OptionSet<CQ::Axis>, const String& name, const Element&, SelectionMode = SelectionMode::Element, ScopeOrdinal = ScopeOrdinal::Element, const ContainerQueryEvaluationState* = nullptr);
+    template<typename Predicate> static const Element* selectContainer(Predicate& isEligibleContainer, const RenderStyle* style, const String& name, const Element& element, SelectionMode selectionMode, ScopeOrdinal scopeOrdinal, const ContainerQueryEvaluationState* evaluationState);
+    static const Element* selectSizeContainer(OptionSet<CQ::Axis>, const String& name, const Element&, SelectionMode = SelectionMode::Element, ScopeOrdinal = ScopeOrdinal::Element, const ContainerQueryEvaluationState* = nullptr);
+    static const Element* selectContainerWithType(ContainerType requestedType, const String& name, const Element& element, SelectionMode selectionMode, ScopeOrdinal scopeOrdinal, const ContainerQueryEvaluationState* evaluationState);
 
 private:
     std::optional<MQ::FeatureEvaluationContext> featureEvaluationContextForQuery(const CQ::ContainerQuery&) const;

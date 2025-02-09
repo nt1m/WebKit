@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2024 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -57,6 +58,12 @@ enum class NumericIdentity : uint8_t {
     CAP,
     CH,
     IC,
+    CQCAP,
+    CQCH,
+    CQEM,
+    CQEX,
+    CQIC,
+    CQLH,
     RCAP,
     RCH,
     REM,
@@ -145,6 +152,12 @@ constexpr NumericIdentity toNumericIdentity(const NonCanonicalDimension& dimensi
     case CSSUnitType::CSS_CAP:      return NumericIdentity::CAP;
     case CSSUnitType::CSS_CH:       return NumericIdentity::CH;
     case CSSUnitType::CSS_IC:       return NumericIdentity::IC;
+    case CSSUnitType::CSS_CQCAP:    return NumericIdentity::CQCAP;
+    case CSSUnitType::CSS_CQCH:     return NumericIdentity::CQCH;
+    case CSSUnitType::CSS_CQEM:     return NumericIdentity::CQEM;
+    case CSSUnitType::CSS_CQEX:     return NumericIdentity::CQEX;
+    case CSSUnitType::CSS_CQIC:     return NumericIdentity::CQIC;
+    case CSSUnitType::CSS_CQLH:     return NumericIdentity::CQLH;
     case CSSUnitType::CSS_RCAP:     return NumericIdentity::RCAP;
     case CSSUnitType::CSS_RCH:      return NumericIdentity::RCH;
     case CSSUnitType::CSS_REM:      return NumericIdentity::REM;
@@ -237,6 +250,12 @@ constexpr bool isLength(NumericIdentity id)
     case NumericIdentity::CAP:
     case NumericIdentity::CH:
     case NumericIdentity::IC:
+    case NumericIdentity::CQCAP:
+    case NumericIdentity::CQCH:
+    case NumericIdentity::CQEM:
+    case NumericIdentity::CQEX:
+    case NumericIdentity::CQIC:
+    case NumericIdentity::CQLH:
     case NumericIdentity::RCAP:
     case NumericIdentity::RCH:
     case NumericIdentity::REM:

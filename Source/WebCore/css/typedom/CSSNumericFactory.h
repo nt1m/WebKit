@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2021, 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -60,6 +60,12 @@ public:
     static Ref<CSSUnitValue> ric(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_RIC); }
     static Ref<CSSUnitValue> lh(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_LH); }
     static Ref<CSSUnitValue> rlh(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_RLH); }
+    static Ref<CSSUnitValue> cqem(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_CQEM); }
+    static Ref<CSSUnitValue> cqex(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_CQEX); }
+    static Ref<CSSUnitValue> cqcap(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_CQCAP); }
+    static Ref<CSSUnitValue> cqch(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_CQCH); }
+    static Ref<CSSUnitValue> cqic(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_CQIC); }
+    static Ref<CSSUnitValue> cqlh(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_CQLH); }
     static Ref<CSSUnitValue> vw(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_VW); }
     static Ref<CSSUnitValue> vh(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_VH); }
     static Ref<CSSUnitValue> vi(double value) { return CSSUnitValue::create(value, CSSUnitType::CSS_VI); }

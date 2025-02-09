@@ -1,6 +1,6 @@
 /*
  * (C) 1999-2003 Lars Knoll (knoll@kde.org)
- * Copyright (C) 2004-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2025 Apple Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -92,14 +92,20 @@ static inline bool isValidCSSUnitTypeForDoubleConversion(CSSUnitType unitType)
     case CSSUnitType::CSS_LVMAX:
     case CSSUnitType::CSS_LVMIN:
     case CSSUnitType::CSS_LVW:
-    case CSSUnitType::CSS_RLH:
     case CSSUnitType::CSS_QUIRKY_EM:
     case CSSUnitType::CSS_RAD:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_RCAP:
     case CSSUnitType::CSS_RCH:
     case CSSUnitType::CSS_REM:
     case CSSUnitType::CSS_REX:
     case CSSUnitType::CSS_RIC:
+    case CSSUnitType::CSS_RLH:
     case CSSUnitType::CSS_S:
     case CSSUnitType::CSS_SVB:
     case CSSUnitType::CSS_SVH:
@@ -197,14 +203,20 @@ static inline bool isStringType(CSSUnitType type)
     case CSSUnitType::CSS_PX:
     case CSSUnitType::CSS_Q:
     case CSSUnitType::CSS_LH:
-    case CSSUnitType::CSS_RLH:
     case CSSUnitType::CSS_QUIRKY_EM:
     case CSSUnitType::CSS_RAD:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_RCAP:
     case CSSUnitType::CSS_RCH:
     case CSSUnitType::CSS_REM:
     case CSSUnitType::CSS_REX:
     case CSSUnitType::CSS_RIC:
+    case CSSUnitType::CSS_RLH:
     case CSSUnitType::CSS_S:
     case CSSUnitType::CSS_SVB:
     case CSSUnitType::CSS_SVH:
@@ -350,6 +362,12 @@ CSSPrimitiveValue::~CSSPrimitiveValue()
     case CSSUnitType::CSS_CAP:
     case CSSUnitType::CSS_CH:
     case CSSUnitType::CSS_IC:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_RCAP:
     case CSSUnitType::CSS_RCH:
     case CSSUnitType::CSS_REM:
@@ -964,6 +982,12 @@ ASCIILiteral CSSPrimitiveValue::unitTypeString(CSSUnitType unitType)
     case CSSUnitType::CSS_PX: return "px"_s;
     case CSSUnitType::CSS_Q: return "q"_s;
     case CSSUnitType::CSS_RAD: return "rad"_s;
+    case CSSUnitType::CSS_CQCAP: return "cqcap"_s;
+    case CSSUnitType::CSS_CQCH: return "cqch"_s;
+    case CSSUnitType::CSS_CQEM: return "cqem"_s;
+    case CSSUnitType::CSS_CQEX: return "cqex"_s;
+    case CSSUnitType::CSS_CQIC: return "cqic"_s;
+    case CSSUnitType::CSS_CQLH: return "cqlh"_s;
     case CSSUnitType::CSS_RCAP: return "rcap"_s;
     case CSSUnitType::CSS_RCH: return "rch"_s;
     case CSSUnitType::CSS_REM: return "rem"_s;
@@ -1055,6 +1079,12 @@ ALWAYS_INLINE String CSSPrimitiveValue::serializeInternal() const
     case CSSUnitType::CSS_PX:
     case CSSUnitType::CSS_Q:
     case CSSUnitType::CSS_RAD:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_RCAP:
     case CSSUnitType::CSS_RCH:
     case CSSUnitType::CSS_REM:
@@ -1150,6 +1180,12 @@ bool CSSPrimitiveValue::equals(const CSSPrimitiveValue& other) const
     case CSSUnitType::CSS_CAP:
     case CSSUnitType::CSS_CH:
     case CSSUnitType::CSS_IC:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_RCAP:
     case CSSUnitType::CSS_RCH:
     case CSSUnitType::CSS_REM:
@@ -1248,6 +1284,12 @@ bool CSSPrimitiveValue::addDerivedHash(Hasher& hasher) const
     case CSSUnitType::CSS_CAP:
     case CSSUnitType::CSS_CH:
     case CSSUnitType::CSS_IC:
+    case CSSUnitType::CSS_CQCAP:
+    case CSSUnitType::CSS_CQCH:
+    case CSSUnitType::CSS_CQEM:
+    case CSSUnitType::CSS_CQEX:
+    case CSSUnitType::CSS_CQIC:
+    case CSSUnitType::CSS_CQLH:
     case CSSUnitType::CSS_RCAP:
     case CSSUnitType::CSS_RCH:
     case CSSUnitType::CSS_REM:

@@ -6739,7 +6739,11 @@
             "values": [
                 "normal",
                 "size",
-                "inline-size"
+                "inline-size",
+                {
+                    "value": "font",
+                    "settings-flag": "cssContainerFontRelativeUnitsEnabled"
+                }
             ],
             "codegen-properties": {
                 "parser-grammar": "<<values>>"

@@ -1,6 +1,6 @@
 /*
  * (C) 1999-2003 Lars Knoll (knoll@kde.org)
- * Copyright (C) 2004, 2005, 2006, 2008, 2019 Apple Inc. All rights reserved.
+ * Copyright (C) 2004, 2005, 2006, 2008, 2019, 2025 Apple Inc. All rights reserved.
  * Copyright (C) 2007 Alexey Proskuryakov <ap@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
@@ -59,8 +59,6 @@ enum class CSSUnitType : uint8_t {
     CSS_NUMBER,
     CSS_INTEGER,
     CSS_PERCENTAGE,
-    CSS_EM,
-    CSS_EX,
     CSS_PX,
     CSS_CM,
     CSS_MM,
@@ -120,20 +118,31 @@ enum class CSSUnitType : uint8_t {
     CSS_DPCM,
     CSS_FR,
     CSS_Q,
-    CSS_LH,
-    CSS_RLH,
 
     CustomIdent,
 
     CSS_TURN,
+
+    CSS_CAP,
+    CSS_CH,
+    CSS_EM,
+    CSS_EX,
+    CSS_IC,
+    CSS_LH,
+
+    CSS_CQCAP,
+    CSS_CQCH,
+    CSS_CQEM,
+    CSS_CQEX,
+    CSS_CQIC,
+    CSS_CQLH,
+
+    CSS_RCAP,
+    CSS_RCH,
     CSS_REM,
     CSS_REX,
-    CSS_CAP,
-    CSS_RCAP,
-    CSS_CH,
-    CSS_RCH,
-    CSS_IC,
     CSS_RIC,
+    CSS_RLH,
 
     CSS_CALC,
     CSS_CALC_PERCENTAGE_WITH_ANGLE,

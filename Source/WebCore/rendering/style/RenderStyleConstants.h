@@ -1178,6 +1178,7 @@ enum class Containment : uint8_t {
 
 enum class ContainerType : uint8_t {
     Normal,
+    Font,
     Size,
     InlineSize,
 };

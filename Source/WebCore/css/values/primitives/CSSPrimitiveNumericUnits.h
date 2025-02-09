@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -464,6 +465,14 @@ enum class LengthUnit : uint8_t {
     Ch,
     Ic,
 
+    // "container font" length units
+    Cqcap,
+    Cqch,
+    Cqem,
+    Cqex,
+    Cqic,
+    Cqlh,
+
     // "root font dependent" length units
     Rcap,
     Rch,
@@ -526,6 +535,12 @@ constexpr CSSUnitType toCSSUnitType(LengthUnit lengthUnit)
     case Cap:       return CSSUnitType::CSS_CAP;
     case Ch:        return CSSUnitType::CSS_CH;
     case Ic:        return CSSUnitType::CSS_IC;
+    case Cqcap:     return CSSUnitType::CSS_CQCAP;
+    case Cqch:      return CSSUnitType::CSS_CQCH;
+    case Cqem:      return CSSUnitType::CSS_CQEM;
+    case Cqex:      return CSSUnitType::CSS_CQEX;
+    case Cqic:      return CSSUnitType::CSS_CQIC;
+    case Cqlh:      return CSSUnitType::CSS_CQLH;
     case Rcap:      return CSSUnitType::CSS_RCAP;
     case Rch:       return CSSUnitType::CSS_RCH;
     case Rem:       return CSSUnitType::CSS_REM;
@@ -586,6 +601,12 @@ constexpr std::optional<LengthUnit> toLengthUnit(CSSUnitType cssUnit)
     case CSSUnitType::CSS_CAP:       return Cap;
     case CSSUnitType::CSS_CH:        return Ch;
     case CSSUnitType::CSS_IC:        return Ic;
+    case CSSUnitType::CSS_CQCAP:     return Cqcap;
+    case CSSUnitType::CSS_CQCH:      return Cqch;
+    case CSSUnitType::CSS_CQEM:      return Cqem;
+    case CSSUnitType::CSS_CQEX:      return Cqex;
+    case CSSUnitType::CSS_CQIC:      return Cqic;
+    case CSSUnitType::CSS_CQLH:      return Cqlh;
     case CSSUnitType::CSS_RCAP:      return Rcap;
     case CSSUnitType::CSS_RCH:       return Rch;
     case CSSUnitType::CSS_REM:       return Rem;
@@ -648,6 +669,12 @@ constexpr bool conversionToCanonicalUnitRequiresConversionData(LengthUnit unit)
     case Cap:
     case Ch:
     case Ic:
+    case Cqcap:
+    case Cqch:
+    case Cqem:
+    case Cqex:
+    case Cqic:
+    case Cqlh:
     case Rcap:
     case Rch:
     case Rem:
@@ -725,6 +752,23 @@ constexpr bool isRootFontRelativeLength(LengthUnit lengthUnit)
     }
 }
 
+constexpr bool isContainerFontRelativeLength(LengthUnit lengthUnit)
+{
+    using enum LengthUnit;
+
+    switch (lengthUnit) {
+    case Cqcap:
+    case Cqch:
+    case Cqem:
+    case Cqex:
+    case Cqic:
+    case Cqlh:
+        return true;
+    default:
+        return false;
+    }
+}
+
 constexpr bool isFontOrRootFontRelativeLength(LengthUnit lengthUnit)
 {
     return isFontRelativeLength(lengthUnit)
@@ -786,7 +830,7 @@ constexpr bool isContainerPercentageLength(LengthUnit lengthUnit)
 ASCIILiteral unitString(LengthUnit);
 
 template<> struct UnitTraits<LengthUnit> {
-    static constexpr auto count = 50;
+    static constexpr auto count = 56;
     static constexpr auto canonical = LengthUnit::Px;
     static constexpr auto category = Calculation::Category::Length;
     static consteval bool isValidRangeForCategory(Range) { return true; }
@@ -809,6 +853,12 @@ CSS_DEFINE_UNIT_LITERAL(LengthUnit::Lh, lh)
 CSS_DEFINE_UNIT_LITERAL(LengthUnit::Cap, cap)
 CSS_DEFINE_UNIT_LITERAL(LengthUnit::Ch, ch)
 CSS_DEFINE_UNIT_LITERAL(LengthUnit::Ic, ic)
+CSS_DEFINE_UNIT_LITERAL(LengthUnit::Cqcap, Cqcap)
+CSS_DEFINE_UNIT_LITERAL(LengthUnit::Cqch, cqch)
+CSS_DEFINE_UNIT_LITERAL(LengthUnit::Cqem, cqem)
+CSS_DEFINE_UNIT_LITERAL(LengthUnit::Cqex, cqex)
+CSS_DEFINE_UNIT_LITERAL(LengthUnit::Cqic, cqic)
+CSS_DEFINE_UNIT_LITERAL(LengthUnit::Cqlh, cqlh)
 CSS_DEFINE_UNIT_LITERAL(LengthUnit::Rcap, rcap)
 CSS_DEFINE_UNIT_LITERAL(LengthUnit::Rch, rch)
 CSS_DEFINE_UNIT_LITERAL(LengthUnit::Rem, rem)
@@ -1287,6 +1337,12 @@ enum class LengthPercentageUnit : uint8_t {
     Cap,
     Ch,
     Ic,
+    Cqcap,
+    Cqch,
+    Cqem,
+    Cqex,
+    Cqic,
+    Cqlh,
     Rcap,
     Rch,
     Rem,
@@ -1357,6 +1413,12 @@ constexpr CSSUnitType toCSSUnitType(LengthPercentageUnit lengthPercentageUnit)
     case Cap:           return CSSUnitType::CSS_CAP;
     case Ch:            return CSSUnitType::CSS_CH;
     case Ic:            return CSSUnitType::CSS_IC;
+    case Cqcap:         return CSSUnitType::CSS_CQCAP;
+    case Cqch:          return CSSUnitType::CSS_CQCH;
+    case Cqem:          return CSSUnitType::CSS_CQEM;
+    case Cqex:          return CSSUnitType::CSS_CQEX;
+    case Cqic:          return CSSUnitType::CSS_CQIC;
+    case Cqlh:          return CSSUnitType::CSS_CQLH;
     case Rcap:          return CSSUnitType::CSS_RCAP;
     case Rch:           return CSSUnitType::CSS_RCH;
     case Rem:           return CSSUnitType::CSS_REM;
@@ -1418,6 +1480,12 @@ constexpr std::optional<LengthPercentageUnit> toLengthPercentageUnit(CSSUnitType
     case CSSUnitType::CSS_CAP:          return Cap;
     case CSSUnitType::CSS_CH:           return Ch;
     case CSSUnitType::CSS_IC:           return Ic;
+    case CSSUnitType::CSS_CQCAP:        return Cqcap;
+    case CSSUnitType::CSS_CQCH:         return Cqch;
+    case CSSUnitType::CSS_CQEM:         return Cqem;
+    case CSSUnitType::CSS_CQEX:         return Cqex;
+    case CSSUnitType::CSS_CQIC:         return Cqic;
+    case CSSUnitType::CSS_CQLH:         return Cqlh;
     case CSSUnitType::CSS_RCAP:         return Rcap;
     case CSSUnitType::CSS_RCH:          return Rch;
     case CSSUnitType::CSS_REM:          return Rem;
@@ -1482,6 +1550,12 @@ constexpr bool conversionToCanonicalUnitRequiresConversionData(LengthPercentageU
     case Cap:
     case Ch:
     case Ic:
+    case Cqcap:
+    case Cqch:
+    case Cqem:
+    case Cqex:
+    case Cqic:
+    case Cqlh:
     case Rcap:
     case Rch:
     case Rem:

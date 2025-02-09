@@ -2616,7 +2616,7 @@ DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 #undef FOR_EACH
 
 #define TYPE ContainerType
-#define FOR_EACH(CASE) CASE(Normal) CASE(Size) CASE(InlineSize)
+#define FOR_EACH(CASE) CASE(Normal) CASE(Font) CASE(Size) CASE(InlineSize)
 DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 #undef TYPE
 #undef FOR_EACH

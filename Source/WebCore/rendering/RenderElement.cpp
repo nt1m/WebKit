@@ -2552,6 +2552,7 @@ bool RenderElement::hasEligibleContainmentForSizeQuery() const
         return shouldApplyInlineSizeContainment();
     case ContainerType::Size:
         return shouldApplySizeContainment();
+    case ContainerType::Font:
     case ContainerType::Normal:
         return true;
     }

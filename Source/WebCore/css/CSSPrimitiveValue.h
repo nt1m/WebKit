@@ -1,6 +1,6 @@
 /*
  * (C) 1999-2003 Lars Knoll (knoll@kde.org)
- * Copyright (C) 2004-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2025 Apple Inc. All rights reserved.
  * Copyright (C) 2007 Alexey Proskuryakov <ap@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
@@ -81,6 +81,7 @@ public:
     bool isFontIndependentLength() const { return isFontIndependentLength(primitiveUnitType()); }
     bool isFontRelativeLength() const { return isFontRelativeLength(primitiveUnitType()); }
     bool isParentFontRelativeLength() const { return isPercentage() || (isFontRelativeLength() && !isRootFontRelativeLength()); }
+    bool isContainerFontRelativeLength() const { return isContainerFontRelativeLength(primitiveUnitType()); }
     bool isRootFontRelativeLength() const { return isRootFontRelativeLength(primitiveUnitType()); }
     bool isQuirkyEms() const { return primitiveType() == CSSUnitType::CSS_QUIRKY_EM; }
     bool isLength() const { return isLength(static_cast<CSSUnitType>(primitiveType())); }
@@ -270,6 +271,7 @@ private:
     NEVER_INLINE String formatIntegerValue(ASCIILiteral suffix) const;
     static constexpr bool isFontIndependentLength(CSSUnitType);
     static constexpr bool isFontRelativeLength(CSSUnitType);
+    static constexpr bool isContainerFontRelativeLength(CSSUnitType);
     static constexpr bool isRootFontRelativeLength(CSSUnitType);
     static constexpr bool isContainerPercentageLength(CSSUnitType);
     static constexpr bool isViewportPercentageLength(CSSUnitType);
@@ -306,6 +308,16 @@ constexpr bool CSSPrimitiveValue::isRootFontRelativeLength(CSSUnitType type)
         || type == CSSUnitType::CSS_RLH;
 }
 
+constexpr bool CSSPrimitiveValue::isContainerFontRelativeLength(CSSUnitType type)
+{
+    return type == CSSUnitType::CSS_CQCAP
+        || type == CSSUnitType::CSS_CQCH
+        || type == CSSUnitType::CSS_CQEM
+        || type == CSSUnitType::CSS_CQEX
+        || type == CSSUnitType::CSS_CQIC
+        || type == CSSUnitType::CSS_CQLH;
+}
+
 constexpr bool CSSPrimitiveValue::isFontRelativeLength(CSSUnitType type)
 {
     return type == CSSUnitType::CSS_EM
@@ -315,6 +327,7 @@ constexpr bool CSSPrimitiveValue::isFontRelativeLength(CSSUnitType type)
         || type == CSSUnitType::CSS_CH
         || type == CSSUnitType::CSS_IC
         || type == CSSUnitType::CSS_QUIRKY_EM
+        || isContainerFontRelativeLength(type)
         || isRootFontRelativeLength(type);
 }
 

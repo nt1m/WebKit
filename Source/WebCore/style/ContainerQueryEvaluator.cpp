@@ -101,40 +101,26 @@ auto ContainerQueryEvaluator::featureEvaluationContextForQuery(const CQ::Contain
     };
 }
 
-const Element* ContainerQueryEvaluator::selectContainer(OptionSet<CQ::Axis> requiredAxes, const String& name, const Element& element, SelectionMode selectionMode, ScopeOrdinal scopeOrdinal, const ContainerQueryEvaluationState* evaluationState)
+template<typename Predicate> const Element* ContainerQueryEvaluator::selectContainer(Predicate& isEligibleContainer, const String& name, const Element& element, SelectionMode selectionMode, ScopeOrdinal scopeOrdinal, const ContainerQueryEvaluationState* evaluationState)
 {
-    // "For each element, the query container to be queried is selected from among the element’s
-    // ancestor query containers that have a valid container-type for all the container features
-    // in the <container-condition>. The optional <container-name> filters the set of query containers
-    // considered to just those with a matching query container name."
-    // https://drafts.csswg.org/css-contain-3/#container-rule
-
-    auto isValidContainerForRequiredAxes = [&](ContainerType containerType, const RenderElement* principalBox) {
-        // Any container is valid for style queries.
-        if (requiredAxes.isEmpty())
-            return true;
-
-        switch (containerType) {
-        case ContainerType::Size:
-            return true;
-        case ContainerType::InlineSize:
-            // Without a principal box the container matches but the query against it will evaluate to Unknown.
-            if (!principalBox)
-                return true;
-            if (requiredAxes.contains(CQ::Axis::Block))
-                return false;
-            return !requiredAxes.contains(principalBox->isHorizontalWritingMode() ? CQ::Axis::Height : CQ::Axis::Width);
-        case ContainerType::Normal:
-            return false;
+    auto findOriginatingElement = [&]() -> const Element* {
+        // ::part() selectors can query its originating host, but not internal query containers inside the shadow tree.
+        if (selectionMode == SelectionMode::PartPseudoElement) {
+            if (scopeOrdinal <= ScopeOrdinal::ContainingHost)
+                return hostForScopeOrdinal(element, scopeOrdinal);
+            ASSERT(scopeOrdinal == ScopeOrdinal::Element);
+            return element.shadowHost();
         }
-        RELEASE_ASSERT_NOT_REACHED();
+        // ::slotted() selectors can query containers inside the shadow tree, including the slot itself.
+        if (scopeOrdinal >= ScopeOrdinal::FirstSlot && scopeOrdinal <= ScopeOrdinal::SlotLimit)
+            return assignedSlotForScopeOrdinal(element, scopeOrdinal);
+        return nullptr;
     };
 
     auto isContainerForQuery = [&](const Element& candidateElement, const Element* originatingElement = nullptr) {
-        auto style = styleForContainer(candidateElement, requiredAxes, evaluationState);
         if (!style)
             return false;
-        if (!isValidContainerForRequiredAxes(style->containerType(), candidateElement.renderer()))
+        if (!isEligibleContainer(style->containerType(), candidateElement.renderer()))
             return false;
         if (name.isEmpty())
             return true;
@@ -151,20 +137,6 @@ const Element* ContainerQueryEvaluator::selectContainer(OptionSet<CQ::Axis> requ
             };
             return isNameFromAllowedScope(scopedName) && scopedName.name == name;
         });
-    };
-
-    auto findOriginatingElement = [&]() -> const Element* {
-        // ::part() selectors can query its originating host, but not internal query containers inside the shadow tree.
-        if (selectionMode == SelectionMode::PartPseudoElement) {
-            if (scopeOrdinal <= ScopeOrdinal::ContainingHost)
-                return hostForScopeOrdinal(element, scopeOrdinal);
-            ASSERT(scopeOrdinal == ScopeOrdinal::Element);
-            return element.shadowHost();
-        }
-        // ::slotted() selectors can query containers inside the shadow tree, including the slot itself.
-        if (scopeOrdinal >= ScopeOrdinal::FirstSlot && scopeOrdinal <= ScopeOrdinal::SlotLimit)
-            return assignedSlotForScopeOrdinal(element, scopeOrdinal);
-        return nullptr;
     };
 
     if (RefPtr originatingElement = findOriginatingElement()) {
@@ -194,6 +166,48 @@ const Element* ContainerQueryEvaluator::selectContainer(OptionSet<CQ::Axis> requ
             return ancestor.get();
     }
     return { };
+}
+
+const Element* ContainerQueryEvaluator::selectContainerWithType(ContainerType requestedType, const String& name, const Element& element, SelectionMode selectionMode, ScopeOrdinal scopeOrdinal, const ContainerQueryEvaluationState* evaluationState)
+{
+    ASSERT(requestedType != ContainerType::Size && requestedType != ContainerType::InlineSize);
+    auto style = styleForContainer(candidateElement, { }, evaluationState);
+    return selectContainer([&](ContainerType containerType, const RenderElement*) {
+        return containerType == requestedType;
+    }, style, name, element, selectionMode, scopeOrdinal, evaluationState);
+}
+
+const Element* ContainerQueryEvaluator::selectSizeContainer(OptionSet<CQ::Axis> requiredAxes, const String& name, const Element& element, SelectionMode selectionMode, ScopeOrdinal scopeOrdinal, const ContainerQueryEvaluationState* evaluationState)
+{
+    // "For each element, the query container to be queried is selected from among the element’s
+    // ancestor query containers that have a valid container-type for all the container features
+    // in the <container-condition>. The optional <container-name> filters the set of query containers
+    // considered to just those with a matching query container name."
+    // https://drafts.csswg.org/css-contain-3/#container-rule
+
+    auto style = styleForContainer(candidateElement, requiredAxes, evaluationState);
+
+    return selectContainer([&](ContainerType containerType, const RenderElement* principalBox) {
+        // Any container is valid for style queries.
+        if (requiredAxes.isEmpty())
+            return true;
+
+        switch (containerType) {
+        case ContainerType::Size:
+            return true;
+        case ContainerType::InlineSize:
+            // Without a principal box the container matches but the query against it will evaluate to Unknown.
+            if (!principalBox)
+                return true;
+            if (requiredAxes.contains(CQ::Axis::Block))
+                return false;
+            return !requiredAxes.contains(principalBox->isHorizontalWritingMode() ? CQ::Axis::Height : CQ::Axis::Width);
+        case ContainerType::Font:
+        case ContainerType::Normal:
+            return false;
+        }
+        RELEASE_ASSERT_NOT_REACHED();
+    }, style, name, element, selectionMode, scopeOrdinal, evaluationState);
 }
 
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -182,6 +183,12 @@ double computeUnzoomedNonCalcLengthDouble(double value, CSS::LengthUnit lengthUn
     case Cqb:
     case Cqmin:
     case Cqmax:
+    case Cqcap:
+    case Cqch:
+    case Cqem:
+    case Cqex:
+    case Cqic:
+    case Cqlh:
         ASSERT_NOT_REACHED();
         return -1.0;
     }
@@ -193,7 +200,7 @@ double computeNonCalcLengthDouble(double value, CSS::LengthUnit lengthUnit, cons
 {
     using enum CSS::LengthUnit;
 
-    auto resolveContainerUnit = [&](CQ::Axis physicalAxis) -> std::optional<double> {
+    auto resolveContainerSizeUnit = [&](CQ::Axis physicalAxis) -> std::optional<double> {
         ASSERT(physicalAxis == CQ::Axis::Width || physicalAxis == CQ::Axis::Height);
 
         conversionData.setUsesContainerUnits();
@@ -207,7 +214,7 @@ double computeNonCalcLengthDouble(double value, CSS::LengthUnit lengthUnit, cons
             : Style::ContainerQueryEvaluator::SelectionMode::PseudoElement;
 
         // "The query container for each axis is the nearest ancestor container that accepts container size queries on that axis."
-        while ((element = Style::ContainerQueryEvaluator::selectContainer(physicalAxis, nullString(), *element, mode))) {
+        while ((element = Style::ContainerQueryEvaluator::selectSizeContainer(physicalAxis, nullString(), *element, mode))) {
             auto* containerRenderer = dynamicDowncast<RenderBox>(element->renderer());
             if (containerRenderer && containerRenderer->hasEligibleContainmentForSizeQuery()) {
                 auto widthOrHeight = physicalAxis == CQ::Axis::Width ? containerRenderer->contentBoxWidth() : containerRenderer->contentBoxHeight();
@@ -217,6 +224,28 @@ double computeNonCalcLengthDouble(double value, CSS::LengthUnit lengthUnit, cons
             mode = Style::ContainerQueryEvaluator::SelectionMode::Element;
         }
         return { };
+    };
+
+    auto containerFontCascadeForFontUnit = [&]() -> const FontCascade& {
+        conversionData.setUsesContainerUnits();
+
+        auto& rootFontCascade = conversionData.rootStyle() ? &conversionData.rootStyle()->fontCascade() : &conversionData.fontCascadeForFontUnits();
+        RefPtr element = conversionData.elementForContainerUnitResolution();
+        if (!element)
+            return rootFontCascade;
+
+        auto mode = conversionData.style()->pseudoElementType() == PseudoId::None
+            ? Style::ContainerQueryEvaluator::SelectionMode::Element
+            : Style::ContainerQueryEvaluator::SelectionMode::PseudoElement;
+
+        // "The query container for each axis is the nearest ancestor container that accepts container size queries on that axis."
+        while ((element = Style::ContainerQueryEvaluator::selectContainerWithType(ContainerType::Font, nullString(), *element, mode))) {
+            if (auto* style = element->existingComputedStyle())
+                return style.fontCascade();
+            // For pseudo-elements the element itself can be the container. Avoid looping forever.
+            mode = Style::ContainerQueryEvaluator::SelectionMode::Element;
+        }
+        return rootFontCascade;
     };
 
     switch (lengthUnit) {
@@ -359,25 +388,25 @@ double computeNonCalcLengthDouble(double value, CSS::LengthUnit lengthUnit, cons
     // MARK: "container-percentage" resolution
 
     case Cqw: {
-        if (auto resolvedValue = resolveContainerUnit(CQ::Axis::Width))
+        if (auto resolvedValue = resolveContainerSizeUnit(CQ::Axis::Width))
             return *resolvedValue;
         return computeNonCalcLengthDouble(value, Svw, conversionData);
     }
 
     case Cqh: {
-        if (auto resolvedValue = resolveContainerUnit(CQ::Axis::Height))
+        if (auto resolvedValue = resolveContainerSizeUnit(CQ::Axis::Height))
             return *resolvedValue;
         return computeNonCalcLengthDouble(value, Svh, conversionData);
     }
 
     case Cqi: {
-        if (auto resolvedValue = resolveContainerUnit(conversionData.style()->writingMode().isHorizontal() ? CQ::Axis::Width : CQ::Axis::Height))
+        if (auto resolvedValue = resolveContainerSizeUnit(conversionData.style()->writingMode().isHorizontal() ? CQ::Axis::Width : CQ::Axis::Height))
             return *resolvedValue;
         return computeNonCalcLengthDouble(value, Svi, conversionData);
     }
 
     case Cqb: {
-        if (auto resolvedValue = resolveContainerUnit(conversionData.style()->writingMode().isHorizontal() ? CQ::Axis::Height : CQ::Axis::Width))
+        if (auto resolvedValue = resolveContainerSizeUnit(conversionData.style()->writingMode().isHorizontal() ? CQ::Axis::Height : CQ::Axis::Width))
             return *resolvedValue;
         return computeNonCalcLengthDouble(value, Svb, conversionData);
     }
@@ -391,6 +420,15 @@ double computeNonCalcLengthDouble(double value, CSS::LengthUnit lengthUnit, cons
         if (value < 0)
             return std::max(computeNonCalcLengthDouble(value, Cqb, conversionData), computeNonCalcLengthDouble(value, Cqi, conversionData));
         return std::min(computeNonCalcLengthDouble(value, Cqb, conversionData), computeNonCalcLengthDouble(value, Cqi, conversionData));
+
+    // MARK: "container font" resolution
+    case Cqcap:
+    case Cqch:
+    case Cqem:
+    case Cqex:
+    case Cqic:
+    case Cqlh:
+        return 0;
     }
 
     // We do not apply the zoom factor when we are computing the value of the font-size property. The zooming

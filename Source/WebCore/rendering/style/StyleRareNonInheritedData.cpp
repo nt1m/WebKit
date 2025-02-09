@@ -360,6 +360,7 @@ OptionSet<Containment> StyleRareNonInheritedData::usedContain() const
 
     switch (static_cast<ContainerType>(containerType)) {
     case ContainerType::Normal:
+    case ContainerType::Font:
         break;
     case ContainerType::Size:
         containment.add({ Containment::Style, Containment::Size });

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2025 Apple Inc. All rights reserved.
  * Copyright (C) 2008, 2010 Nokia Corporation and/or its subsidiary(-ies)
  * Copyright (C) 2007 Alp Toker <alp@atoker.com>
  * Copyright (C) 2008 Eric Seidel <eric@webkit.org>
@@ -3117,6 +3117,12 @@ static bool unitAllowedForSpacing(CSS::LengthUnit lenghtUnit)
     case Cqb:
     case Cqmin:
     case Cqmax:
+    case Cqcap:
+    case Cqch:
+    case Cqem:
+    case Cqex:
+    case Cqic:
+    case Cqlh:
         return false;
     }
 
