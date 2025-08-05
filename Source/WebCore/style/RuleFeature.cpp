@@ -305,7 +305,11 @@ DoesBreakScope RuleFeatureSet::recursivelyCollectFeaturesFromSelector(SelectorFe
 {
     auto doesBreakScope = DoesBreakScope::No;
     const CSSSelector* selector = &firstSelector;
+
+    ALWAYS_LOG_WITH_STREAM(stream << "--- firstSelector -- " << firstSelector.selectorText());
     while (true) {
+        ALWAYS_LOG_WITH_STREAM(stream << "- selector text " << selector->selectorText());
+
         auto canBreakScope = allComponentsCanBreakScope;
         if (selector->match() == CSSSelector::Match::Id) {
             idsInRules.add(selector->value());
@@ -320,6 +324,9 @@ DoesBreakScope RuleFeatureSet::recursivelyCollectFeaturesFromSelector(SelectorFe
             attributeLocalNamesInRules.add(selector->attribute().localName());
             selectorFeatures.attributes.append({ selector, matchElement, isNegation });
         } else if (selector->match() == CSSSelector::Match::PseudoElement) {
+            ALWAYS_LOG_WITH_STREAM(stream << "ua part: " << (selector->pseudoElement() == CSSSelector::PseudoElement::UserAgentPart));
+            ALWAYS_LOG_WITH_STREAM(stream << "isFirstLine: " << (selector->pseudoElement() == CSSSelector::PseudoElement::FirstLine));
+            ALWAYS_LOG_WITH_STREAM(stream << "isFirstLetter: " << (selector->pseudoElement() == CSSSelector::PseudoElement::FirstLetter));
             switch (selector->pseudoElement()) {
             case CSSSelector::PseudoElement::FirstLine:
                 usesFirstLineRules = true;

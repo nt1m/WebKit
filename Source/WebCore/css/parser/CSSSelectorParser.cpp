@@ -549,6 +549,10 @@ static bool isTreeAbidingPseudoElement(CSSSelector::PseudoElement pseudoElement)
 
 static bool isSimpleSelectorValidAfterPseudoElement(const MutableCSSSelector& simpleSelector, CSSSelector::PseudoElement compoundPseudoElement)
 {
+    if (compoundPseudoElement == CSSSelector::PseudoElement::UserAgentPart) {
+        if (simpleSelector.match() == CSSSelector::Match::PseudoElement)
+            return true;
+     }
     if (compoundPseudoElement == CSSSelector::PseudoElement::Part) {
         if (simpleSelector.match() == CSSSelector::Match::PseudoElement && simpleSelector.pseudoElement() != CSSSelector::PseudoElement::Part)
             return true;
