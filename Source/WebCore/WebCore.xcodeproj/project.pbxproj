@@ -3994,7 +3994,7 @@
 		9B4F0636289F3882007831DB /* SlotAssignmentMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B4F0630289F2F08007831DB /* SlotAssignmentMode.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9B50B1DE17CD4C0F0087F63C /* FormAssociatedElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B50B1DC17CD4C0F0087F63C /* FormAssociatedElement.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9B532EA41BA928570038A827 /* SlotAssignment.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B532EA21BA928570038A827 /* SlotAssignment.h */; };
-		9B69D3B51B98FFE900E3512B /* HTMLSlotElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B69D3B31B98FFE900E3512B /* HTMLSlotElement.h */; };
+		9B69D3B51B98FFE900E3512B /* HTMLSlotElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B69D3B31B98FFE900E3512B /* HTMLSlotElement.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9B69D3B91B99100700E3512B /* JSHTMLSlotElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B69D3B71B99100700E3512B /* JSHTMLSlotElement.h */; };
 		9B6C41531344949000085B62 /* StringWithDirection.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B6C41521344949000085B62 /* StringWithDirection.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		9B714E211C91166900AC0E92 /* EventPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B714E1F1C91166900AC0E92 /* EventPath.h */; };

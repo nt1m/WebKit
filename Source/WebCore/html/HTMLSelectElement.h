@@ -25,8 +25,11 @@
 
 #pragma once
 
+#include <WebCore/HTMLButtonElement.h>
+#include <WebCore/HTMLDivElement.h>
 #include <WebCore/HTMLFormControlElement.h>
 #include <WebCore/HTMLOptionElement.h>
+#include <WebCore/HTMLSlotElement.h>
 #include <WebCore/PopupMenuClient.h>
 #include <WebCore/TypeAhead.h>
 #include <wtf/CompletionHandler.h>
@@ -176,6 +179,10 @@ public:
 
     void updateSelectedContent() const;
 
+    bool usesBaseAppearancePicker() const;
+
+    HTMLElement* pickerPopoverElement() const { return m_popover.get(); }
+
 protected:
     HTMLSelectElement(const QualifiedName&, Document&, HTMLFormElement*);
 
@@ -264,6 +271,8 @@ private:
     int optionCount() const final;
     String optionAtIndex(int index) const final;
 
+    void showPickerInternal();
+
     // m_listItems contains HTMLOptionElement, HTMLOptGroupElement, and HTMLHRElement objects.
     mutable Vector<WeakPtr<HTMLElement, WeakPtrImplWithEventTargetData>> m_listItems;
     Vector<bool> m_lastOnChangeSelection;
@@ -282,6 +291,7 @@ private:
     std::optional<int> m_lastActiveIndex;
 
     WeakPtr<HTMLSlotElement, WeakPtrImplWithEventTargetData> m_buttonSlot;
+    RefPtr<HTMLDivElement> m_popover;
 
 #if !PLATFORM(IOS_FAMILY)
     RefPtr<PopupMenu> m_popup;

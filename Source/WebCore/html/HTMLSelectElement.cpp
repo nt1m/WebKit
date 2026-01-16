@@ -46,6 +46,7 @@
 #include "GenericCachedHTMLCollection.h"
 #include "HTMLButtonElement.h"
 #include "HTMLDataListElement.h"
+#include "HTMLDivElement.h"
 #include "HTMLFormElement.h"
 #include "HTMLHRElement.h"
 #include "HTMLNames.h"
@@ -177,7 +178,14 @@ void HTMLSelectElement::didAddUserAgentShadowRoot(ShadowRoot& root)
     root.appendChild(buttonSlot);
     m_buttonSlot = WTF::move(buttonSlot);
 
-    root.appendChild(HTMLSlotElement::create(slotTag, document));
+    Ref popover = HTMLDivElement::create(divTag, document);
+    popover->setAttributeWithoutSynchronization(popoverAttr, autoAtom());
+    popover->setUserAgentPart(pickerSelectAtom());
+
+    ASSERT(!hasAttributeWithoutSynchronization(openAttr));
+    popover->appendChild(HTMLSlotElement::create(slotTag, document));
+    root.appendChild(popover);
+    m_popover = WTF::move(popover);
 }
 
 HTMLSelectElement* HTMLSelectElement::findOwnerSelect(ContainerNode* startNode, ExcludeOptGroup excludeOptGroup)
@@ -466,13 +474,14 @@ bool HTMLSelectElement::childShouldCreateRenderer(const Node& child) const
     if (!usesMenuList())
         return is<HTMLOptionElement>(child) || is<HTMLOptGroupElement>(child) || validationMessageShadowTreeContains(child);
 #endif
-    if (child.isInShadowTree() && child.containingShadowRoot() == userAgentShadowRoot())
-        return true;
-    if (usesMenuList() && is<HTMLButtonElement>(child)) {
-        if (&child == childrenOfType<HTMLButtonElement>(*this).first())
-            return true;
-    }
-    return validationMessageShadowTreeContains(child);
+    // if (child.isInShadowTree() && child.containingShadowRoot() == userAgentShadowRoot())
+    //     return true;
+    // if (usesMenuList() && is<HTMLButtonElement>(child)) {
+    //     if (&child == childrenOfType<HTMLButtonElement>(*this).first())
+    //         return true;
+    // }
+    // return validationMessageShadowTreeContains(child);
+    return true;
 }
 
 Ref<HTMLCollection> HTMLSelectElement::selectedOptions()
@@ -1318,7 +1327,7 @@ bool HTMLSelectElement::platformHandleKeydownEvent(KeyboardEvent* event)
             // gets called from RenderMenuList::valueChanged, which gets called
             // after the user makes a selection from the menu.
             saveLastSelection();
-            showPopup(); // showPopup() may run JS and cause the renderer to get destroyed.
+            showPickerInternal();
             event->setDefaultHandled();
         }
         return true;
@@ -1333,6 +1342,8 @@ void HTMLSelectElement::menuListDefaultEventHandler(Event& event)
 {
     ASSERT(renderer());
     ASSERT(usesMenuList());
+
+    // FIXME: Do something here for base-select picker keyboard navigation.
 
     auto& eventNames = WebCore::eventNames();
     if (event.type() == eventNames.keydownEvent) {
@@ -1416,7 +1427,7 @@ void HTMLSelectElement::menuListDefaultEventHandler(Event& event)
                 // gets called from RenderMenuList::valueChanged, which gets called
                 // after the user makes a selection from the menu.
                 saveLastSelection();
-                showPopup(); // showPopup() may run JS and cause the renderer to get destroyed.
+                showPickerInternal();
                 handled = true;
             }
         } else if (RenderTheme::singleton().popsMenuByArrowKeys()) {
@@ -1433,7 +1444,7 @@ void HTMLSelectElement::menuListDefaultEventHandler(Event& event)
                 // gets called from RenderMenuList::valueChanged, which gets called
                 // after the user makes a selection from the menu.
                 saveLastSelection();
-                showPopup(); // showPopup() may run JS and cause the renderer to get destroyed.
+                showPickerInternal();
                 handled = true;
             } else if (keyCode == '\r') {
                 if (RefPtr form = this->form())
@@ -1460,7 +1471,7 @@ void HTMLSelectElement::menuListDefaultEventHandler(Event& event)
             // which gets called after the user makes a selection from
             // the menu.
             saveLastSelection();
-            showPopup(); // showPopup() may run JS and cause the renderer to get destroyed.
+            showPickerInternal();
         }
 #endif
         event.setDefaultHandled();
@@ -1891,11 +1902,27 @@ ExceptionOr<void> HTMLSelectElement::showPicker()
     if (!window || !window->consumeTransientActivation())
         return Exception { ExceptionCode::NotAllowedError, "Select showPicker() requires a user gesture."_s };
 
+    showPickerInternal();
+
+    return { };
+}
+
+bool HTMLSelectElement::usesBaseAppearancePicker() const
+{
+    auto* computedStyle = m_popover->computedStyle();
+    return computedStyle && computedStyle->usedAppearance() == StyleAppearance::Base;
+}
+
+void HTMLSelectElement::showPickerInternal()
+{
+    if (usesBaseAppearancePicker()) {
+        m_popover->showPopoverInternal(this);
+        return;
+    }
+
 #if !PLATFORM(IOS_FAMILY)
     showPopup(); // showPopup() may run JS and cause the renderer to get destroyed.
 #endif
-
-    return { };
 }
 
 void HTMLSelectElement::updateSelectedContent() const

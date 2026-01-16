@@ -31,16 +31,19 @@
 #include "ContainerNodeInlines.h"
 #include "Document.h"
 #include "ElementAncestorIteratorInlines.h"
+#include "EventNames.h"
 #include "HTMLDataListElement.h"
 #include "HTMLHRElement.h"
 #include "HTMLNames.h"
 #include "HTMLOptGroupElement.h"
 #include "HTMLSelectElement.h"
 #include "HTMLSelectedContentElement.h"
+#include "MouseEvent.h"
 #include "NodeName.h"
 #include "NodeRenderStyle.h"
 #include "NodeTraversal.h"
 #include "PseudoClassChangeInvalidation.h"
+#include "RenderMenuList.h"
 #include "RenderStyle+GettersInlines.h"
 #include "RenderTheme.h"
 #include "ScriptDisallowedScope.h"
@@ -146,7 +149,7 @@ void HTMLOptionElement::finishParsingChildren()
 bool HTMLOptionElement::isFocusable() const
 {
     RefPtr select = ownerSelectElement();
-    if (select && select->usesMenuList())
+    if (select && select->usesMenuList() && !select->usesBaseAppearancePicker())
         return false;
     return HTMLElement::isFocusable();
 }
@@ -422,6 +425,24 @@ void HTMLOptionElement::cloneIntoSelectedContent(HTMLSelectedContentElement& sel
     for (RefPtr child = firstChild(); child; child = child->nextSibling())
         newChildren.append(child->cloneNode(true));
     selectedContent.replaceChildrenWithoutValidityCheck(WTF::move(newChildren));
+}
+
+void HTMLOptionElement::defaultEventHandler(Event& event)
+{
+    RefPtr select = ownerSelectElement();
+    if (!select || !select->usesMenuList() || !select->usesBaseAppearancePicker())
+        return;
+
+    if (isDisabledFormControl() || select->isDisabledFormControl())
+        return;
+
+    if (RefPtr mouseEvent = dynamicDowncast<MouseEvent>(event); event.type() == eventNames().mousedownEvent && mouseEvent && mouseEvent->button() == MouseButton::Left) {
+        // FIXME: check if this emits the right events and other stuff
+        select->setSelectedIndex(index());
+        if (RefPtr popover = select->pickerPopoverElement())
+            popover->hidePopoverInternal(FocusPreviousElement::No, FireEvents::No);
+        event.setDefaultHandled();
+    }
 }
 
 } // namespace

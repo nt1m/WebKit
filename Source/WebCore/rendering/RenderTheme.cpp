@@ -131,7 +131,7 @@ StyleAppearance RenderTheme::adjustAppearanceForElement(RenderStyle& style, cons
 
     auto appearance = style.usedAppearance();
     if (appearance == StyleAppearance::BaseSelect) {
-        if (is<HTMLSelectElement>(element)) [[likely]] {
+        if (is<HTMLSelectElement>(element) || (element && is<HTMLSelectElement>(element->shadowHost()))) [[likely]] {
             style.setUsedAppearance(StyleAppearance::Base);
             return StyleAppearance::Base;
         }

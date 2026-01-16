@@ -60,6 +60,8 @@ static void applyUASheetBehaviorsToContext(CSSParserContext& context)
     context.propertySettings.useSystemAppearance = true;
 #endif
     context.cssInternalAutoBaseParsingEnabled = true;
+    context.propertySettings.cssAnchorPositioningEnabled = true;
+    context.htmlEnhancedSelectEnabled = true;
 }
 
 CSSParserContext::CSSParserContext(CSSParserMode mode, const URL& baseURL)

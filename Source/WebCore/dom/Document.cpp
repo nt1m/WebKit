@@ -149,6 +149,7 @@
 #include "HTMLPictureElement.h"
 #include "HTMLPlugInElement.h"
 #include "HTMLScriptElement.h"
+#include "HTMLSelectElement.h"
 #include "HTMLStyleElement.h"
 #include "HTMLTitleElement.h"
 #include "HTMLUnknownElement.h"
@@ -11122,6 +11123,10 @@ void Document::handlePopoverLightDismiss(const PointerEvent& event, Node& target
                             if (RefPtr popover = dynamicDowncast<HTMLElement>(button->commandForElement()); popover && isShowingAutoPopover(*popover))
                                 invokerPopover = WTF::move(popover);
                             else if (RefPtr popover = button->popoverTargetElement(); popover && isShowingAutoPopover(*popover))
+                                invokerPopover = WTF::move(popover);
+                        }
+                        if (RefPtr select = dynamicDowncast<HTMLSelectElement>(*htmlElement)) {
+                            if (RefPtr popover = select->pickerPopoverElement(); popover && isShowingAutoPopover(*popover))
                                 invokerPopover = WTF::move(popover);
                         }
                     }

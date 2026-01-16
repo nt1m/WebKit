@@ -78,7 +78,6 @@ private:
     void removedFromAncestor(RemovalType, ContainerNode& oldParentOfRemovedTree) final;
 
     bool isFocusable() const final;
-    bool rendererIsNeeded(const RenderStyle&) final { return false; }
     bool matchesDefaultPseudoClass() const final;
 
     void attributeChanged(const QualifiedName&, const AtomString& oldValue, const AtomString& newValue, AttributeModificationReason) final;
@@ -86,6 +85,7 @@ private:
     bool accessKeyAction(bool) final;
 
     void childrenChanged(const ChildChange&) final;
+    void defaultEventHandler(Event&) final;
 
     void willResetComputedStyle() final;
 

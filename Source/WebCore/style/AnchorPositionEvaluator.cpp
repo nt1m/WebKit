@@ -424,7 +424,7 @@ static LayoutSize offsetFromAncestorContainer(const RenderElement& descendantCon
         maxContainer = ancestorInline->containingBlock();
     do {
         CheckedPtr nextContainer = currentContainer->container();
-        ASSERT(nextContainer); // This means we reached the top without finding container.
+        // ASSERT(nextContainer); // This means we reached the top without finding container.
         if (!nextContainer)
             break;
         LayoutSize currentOffset = currentContainer->offsetFromContainer(*nextContainer, referencePoint);

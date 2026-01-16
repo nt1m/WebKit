@@ -26,7 +26,10 @@
 #include "config.h"
 #include "RenderTreeBuilderFormControls.h"
 
+#include "ContainerNodeInlines.h"
 #include "HTMLInputElement.h"
+#include "HTMLOptionElement.h"
+#include "HTMLSelectElement.h"
 #include "InputType.h"
 #include "RenderBlockFlow.h"
 #include "RenderBlockInlines.h"
@@ -88,19 +91,30 @@ void RenderTreeBuilder::FormControls::updateAfterDescendants(RenderElement& rend
         if (inputType->isCheckable())
             updateCheckmark(renderer);
     }
+
+    if (RefPtr optionElement = dynamicDowncast<HTMLOptionElement>(renderer.element()))
+        updateCheckmark(renderer);
 }
 
 void RenderTreeBuilder::FormControls::updateCheckmark(RenderElement& renderer)
 {
-    RefPtr inputElement = dynamicDowncast<HTMLInputElement>(renderer.element());
-    ASSERT(inputElement);
-
     auto pseudoStyle = renderer.getCachedPseudoStyle({ PseudoElementType::Checkmark });
     if (!pseudoStyle)
         return;
 
     auto shouldHaveCheckmarkRenderer = [&]() -> bool {
-        return renderer.style().appearance() == StyleAppearance::Base && pseudoStyle->display() != DisplayType::None;
+        if (pseudoStyle->display() == DisplayType::None)
+            return false;
+
+        CheckedPtr baseRenderer = [&]() -> RenderElement* {
+            if (RefPtr optionElement = dynamicDowncast<HTMLOptionElement>(renderer.element())) {
+                if (RefPtr selectElement = optionElement->ownerSelectElement())
+                    return selectElement->renderer();
+            }
+            ASSERT(is<HTMLInputElement>(renderer.element()));
+            return &renderer;
+        }();
+        return baseRenderer && baseRenderer->style().usedAppearance() == StyleAppearance::Base;
     };
 
     auto existingCheckmark = [&]() -> CheckedPtr<RenderBlockFlow> {
@@ -138,7 +152,7 @@ void RenderTreeBuilder::FormControls::updateCheckmark(RenderElement& renderer)
     if (checkmark->style().hasContent())
         RenderTreeUpdater::GeneratedContent::createContentRenderers(m_builder, *checkmark, checkmark->style(), PseudoElementType::Checkmark);
 
-    m_builder.attach(renderer, WTF::move(checkmark));
+    m_builder.attach(renderer, WTF::move(checkmark), is<HTMLOptionElement>(renderer.element()) ? renderer.firstChild() : nullptr);
 }
 
 } // namespace WebCore
